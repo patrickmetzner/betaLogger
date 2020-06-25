@@ -24,6 +24,6 @@ The logged data, saved as **DLF files** can be analyzed like in the figure below
 When logging long track sessions, the files with the logged data can get inconveniently big for some analysis (200 lines/second). In these cases, when high precision is not needed, the **MATLAB** project **[file20hz.m](https://github.com/patrickmetzner/betaLogger/blob/master/dlfFileCreator/file20hz/file20hz.m)** can be used to **reduce by 10x** the number of lines in the DLF file. 
 
 
-The **[betaLogger.pdsprj](https://github.com/patrickmetzner/betaLogger/blob/master/betaLogger.pdsprj)** contains the **CAD project** to fabricate the PCB seen on the picture below.
+The **[betaLogger.pdsprj](https://github.com/patrickmetzner/betaLogger/blob/master/betaLogger.pdsprj)** contains the **CAD project** to fabricate the PCB seen in the picture below.
 
 ![Preview-Screens](https://github.com/patrickmetzner/betaLogger/blob/master/PCB.jpeg)
