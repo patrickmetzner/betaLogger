@@ -8,9 +8,10 @@ Automotive data logger for a Formula SAE car.
 # About the project
 
 This project was developed using an **STM32 microcontroller**. It is capable of logging the following data:
-* 7 analog channels, 3 axis Accelerometer, 3 axis Gyroscope (200 Hz);
-* GPS – Latitude, longitude and speed (10 Hz);
-* Data logged into an SD Card
+* 7 analog channels [ADC], 3 axis Accelerometer [I2C], 3 axis Gyroscope [I2C] (200 Hz);
+* GPS [USART] – Latitude, longitude and speed (10 Hz);
+* Data logged into an SD Card [SPI];
+* CAN bus will be implemented in the future.
 
 These logging rates were chosen according to **Jorge Segers** book, **Analysis Techniques for Racecar Data Acquisition**. According to Segers, in order to **avoid aliasing** (figure below), an effect that causes different signals to become indistinguishable (or aliases of one another) when sampled, the data acquisition must be made at rates higher than the double of the highest frequencies present in each signal. Segers suggests that the minimum data acquisition rates must follow the table below, adapted from his book.
 
