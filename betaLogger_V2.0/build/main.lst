@@ -1,0 +1,3026 @@
+ARM GAS  C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s 			page 1
+
+
+   1              		.cpu cortex-m3
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 1
+   9              		.eabi_attribute 34, 1
+  10              		.eabi_attribute 18, 4
+  11              		.file	"main.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.SystemClock_Config,"ax",%progbits
+  16              		.align	1
+  17              		.global	SystemClock_Config
+  18              		.syntax unified
+  19              		.thumb
+  20              		.thumb_func
+  21              		.fpu softvfp
+  23              	SystemClock_Config:
+  24              	.LFB67:
+  25              		.file 1 "Src/main.c"
+   1:Src/main.c    **** /* USER CODE BEGIN Header */
+   2:Src/main.c    **** /**
+   3:Src/main.c    ****   ******************************************************************************
+   4:Src/main.c    ****   * @file           : main.c
+   5:Src/main.c    ****   * @brief          : Main program body
+   6:Src/main.c    ****   ******************************************************************************
+   7:Src/main.c    ****   * @attention
+   8:Src/main.c    ****   *
+   9:Src/main.c    ****   * <h2><center>&copy; Copyright (c) 2019 STMicroelectronics.
+  10:Src/main.c    ****   * All rights reserved.</center></h2>
+  11:Src/main.c    ****   *
+  12:Src/main.c    ****   * This software component is licensed by ST under BSD 3-Clause license,
+  13:Src/main.c    ****   * the "License"; You may not use this file except in compliance with the
+  14:Src/main.c    ****   * License. You may obtain a copy of the License at:
+  15:Src/main.c    ****   *                        opensource.org/licenses/BSD-3-Clause
+  16:Src/main.c    ****   *
+  17:Src/main.c    ****   ******************************************************************************
+  18:Src/main.c    ****   */
+  19:Src/main.c    **** /* USER CODE END Header */
+  20:Src/main.c    **** 
+  21:Src/main.c    **** /* Includes ------------------------------------------------------------------*/
+  22:Src/main.c    **** #include "main.h"
+  23:Src/main.c    **** #include "adc.h"
+  24:Src/main.c    **** #include "dma.h"
+  25:Src/main.c    **** #include "i2c.h"
+  26:Src/main.c    **** #include "spi.h"
+  27:Src/main.c    **** #include "tim.h"
+  28:Src/main.c    **** #include "usart.h"
+  29:Src/main.c    **** #include "usb.h"
+  30:Src/main.c    **** #include "gpio.h"
+  31:Src/main.c    **** 
+  32:Src/main.c    **** /* Private includes ----------------------------------------------------------*/
+  33:Src/main.c    **** /* USER CODE BEGIN Includes */
+ARM GAS  C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s 			page 2
+
+
+  34:Src/main.c    **** #include <string.h>
+  35:Src/main.c    **** #include <stdio.h>
+  36:Src/main.c    **** #include "ff.h"
+  37:Src/main.c    **** 
+  38:Src/main.c    **** /* USER CODE END Includes */
+  39:Src/main.c    **** 
+  40:Src/main.c    **** /* Private typedef -----------------------------------------------------------*/
+  41:Src/main.c    **** /* USER CODE BEGIN PTD */
+  42:Src/main.c    **** 
+  43:Src/main.c    **** /* USER CODE END PTD */
+  44:Src/main.c    **** 
+  45:Src/main.c    **** /* Private define ------------------------------------------------------------*/
+  46:Src/main.c    **** /* USER CODE BEGIN PD */
+  47:Src/main.c    **** 
+  48:Src/main.c    **** /* USER CODE END PD */
+  49:Src/main.c    **** 
+  50:Src/main.c    **** /* Private macro -------------------------------------------------------------*/
+  51:Src/main.c    **** /* USER CODE BEGIN PM */
+  52:Src/main.c    **** 
+  53:Src/main.c    **** /* USER CODE END PM */
+  54:Src/main.c    **** 
+  55:Src/main.c    **** /* Private variables ---------------------------------------------------------*/
+  56:Src/main.c    **** 
+  57:Src/main.c    **** /* USER CODE BEGIN PV */
+  58:Src/main.c    **** FATFS SDFatFs;  /* File system object for SD card logical drive */
+  59:Src/main.c    **** FIL MyFile;     /* File object */
+  60:Src/main.c    **** char SDPath[4]; /* SD card logical drive path */
+  61:Src/main.c    **** uint32_t byteswritten;                     /* File write/read counts */
+  62:Src/main.c    **** FRESULT res;
+  63:Src/main.c    **** 
+  64:Src/main.c    **** char textTxBuffer[500];
+  65:Src/main.c    **** char mpuBuffer[42];
+  66:Src/main.c    **** char timeBuffer[12];
+  67:Src/main.c    **** char adcBuffer[35];
+  68:Src/main.c    **** 
+  69:Src/main.c    **** uint8_t gpsReady;
+  70:Src/main.c    **** uint8_t rawGps[51];
+  71:Src/main.c    **** uint8_t sdBufferA[20][119];
+  72:Src/main.c    **** uint8_t sdBufferB[20][119];
+  73:Src/main.c    **** uint8_t sdBufferC[20][119];
+  74:Src/main.c    **** 
+  75:Src/main.c    **** uint16_t rawAdc[7];
+  76:Src/main.c    **** uint8_t rawMpu[14];
+  77:Src/main.c    **** uint8_t adcReady, mpuReady, timReady, nBuffer, dataReady;
+  78:Src/main.c    **** /* USER CODE END PV */
+  79:Src/main.c    **** 
+  80:Src/main.c    **** /* Private function prototypes -----------------------------------------------*/
+  81:Src/main.c    **** void SystemClock_Config(void);
+  82:Src/main.c    **** /* USER CODE BEGIN PFP */
+  83:Src/main.c    **** 
+  84:Src/main.c    **** /* USER CODE END PFP */
+  85:Src/main.c    **** 
+  86:Src/main.c    **** /* Private user code ---------------------------------------------------------*/
+  87:Src/main.c    **** /* USER CODE BEGIN 0 */
+  88:Src/main.c    **** 
+  89:Src/main.c    **** /* USER CODE END 0 */
+  90:Src/main.c    **** 
+ARM GAS  C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s 			page 3
+
+
+  91:Src/main.c    **** /**
+  92:Src/main.c    ****   * @brief  The application entry point.
+  93:Src/main.c    ****   * @retval int
+  94:Src/main.c    ****   */
+  95:Src/main.c    **** int main(void)
+  96:Src/main.c    **** {
+  97:Src/main.c    ****     /* USER CODE BEGIN 1 */
+  98:Src/main.c    ****     char fileName[13];
+  99:Src/main.c    ****     char fileHeader[184];
+ 100:Src/main.c    ****     uint16_t fileNumber = 0;
+ 101:Src/main.c    **** 
+ 102:Src/main.c    ****     uint8_t mpuConfigTx, mpuConfigRx;
+ 103:Src/main.c    **** 
+ 104:Src/main.c    ****     /* USER CODE END 1 */
+ 105:Src/main.c    **** 
+ 106:Src/main.c    **** 
+ 107:Src/main.c    ****     /* MCU Configuration--------------------------------------------------------*/
+ 108:Src/main.c    **** 
+ 109:Src/main.c    ****     /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+ 110:Src/main.c    ****     HAL_Init();
+ 111:Src/main.c    **** 
+ 112:Src/main.c    ****     /* USER CODE BEGIN Init */
+ 113:Src/main.c    **** 
+ 114:Src/main.c    ****     /* USER CODE END Init */
+ 115:Src/main.c    **** 
+ 116:Src/main.c    ****     /* Configure the system clock */
+ 117:Src/main.c    ****     SystemClock_Config();
+ 118:Src/main.c    **** 
+ 119:Src/main.c    ****     /* USER CODE BEGIN SysInit */
+ 120:Src/main.c    **** 
+ 121:Src/main.c    ****     /* USER CODE END SysInit */
+ 122:Src/main.c    **** 
+ 123:Src/main.c    ****     /* Initialize all configured peripherals */
+ 124:Src/main.c    ****     MX_GPIO_Init();
+ 125:Src/main.c    ****     MX_DMA_Init();
+ 126:Src/main.c    ****     MX_TIM3_Init();
+ 127:Src/main.c    ****     MX_USART1_UART_Init();
+ 128:Src/main.c    ****     MX_SPI1_Init();
+ 129:Src/main.c    ****     MX_USART3_UART_Init();
+ 130:Src/main.c    ****     MX_ADC1_Init();
+ 131:Src/main.c    ****     MX_I2C1_Init();
+ 132:Src/main.c    ****     MX_USB_PCD_Init();
+ 133:Src/main.c    ****     /* USER CODE BEGIN 2 */
+ 134:Src/main.c    ****     sprintf(textTxBuffer, "betaLogger USART1 test\r");
+ 135:Src/main.c    ****     HAL_UART_Transmit(&huart1, (uint8_t *)textTxBuffer, strlen(textTxBuffer), 500);
+ 136:Src/main.c    **** 
+ 137:Src/main.c    ****     f_mount(&SDFatFs, (TCHAR const *)SDPath, 0);
+ 138:Src/main.c    ****     while (res == FR_OK) {
+ 139:Src/main.c    ****         sprintf(fileName, "file%04d.dlf", ++fileNumber);
+ 140:Src/main.c    ****         res = f_open(&MyFile, fileName, FA_OPEN_EXISTING | FA_READ);
+ 141:Src/main.c    ****     }
+ 142:Src/main.c    ****     f_open(&MyFile, fileName, FA_OPEN_ALWAYS | FA_WRITE);
+ 143:Src/main.c    ****     sprintf(fileHeader,
+ 144:Src/main.c    ****             "#V2\r#DATASTART\rDatalog Time; GPS Latitude; GPS Longitude; GPS Speed;Ax;Ay;Az;Gx;Gy;G
+ 145:Src/main.c    ****     fileHeader[183] = 0x0A;
+ 146:Src/main.c    ****     f_write(&MyFile, fileHeader, sizeof(fileHeader), (void *)&byteswritten);
+ 147:Src/main.c    ****     f_sync(&MyFile);
+ARM GAS  C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s 			page 4
+
+
+ 148:Src/main.c    **** 
+ 149:Src/main.c    **** 
+ 150:Src/main.c    ****     for(int i = 0; i < 20; i++) {
+ 151:Src/main.c    ****         for(int j = 0; j < 82; j++) {
+ 152:Src/main.c    ****             sdBufferA[i][j] = 0x30;
+ 153:Src/main.c    ****         }
+ 154:Src/main.c    ****         sdBufferA[i][10] = 0x41;
+ 155:Src/main.c    ****         sdBufferA[i][22] = 0x41;
+ 156:Src/main.c    ****         sdBufferA[i][34] = 0x41;
+ 157:Src/main.c    ****         sdBufferA[i][40] = 0x41;
+ 158:Src/main.c    ****         sdBufferA[i][47] = 0x41;
+ 159:Src/main.c    ****         sdBufferA[i][54] = 0x41;
+ 160:Src/main.c    ****         sdBufferA[i][61] = 0x41;
+ 161:Src/main.c    ****         sdBufferA[i][68] = 0x41;
+ 162:Src/main.c    ****         sdBufferA[i][75] = 0x41;
+ 163:Src/main.c    ****         sdBufferA[i][82] = 0x41;
+ 164:Src/main.c    ****         sdBufferA[i][87] = 0x41;
+ 165:Src/main.c    ****         sdBufferA[i][92] = 0x41;
+ 166:Src/main.c    ****         sdBufferA[i][97] = 0x41;
+ 167:Src/main.c    ****         sdBufferA[i][102] = 0x41;
+ 168:Src/main.c    ****         sdBufferA[i][107] = 0x41;
+ 169:Src/main.c    ****         sdBufferA[i][112] = 0x41;
+ 170:Src/main.c    ****         sdBufferA[i][117] = 0x0D;
+ 171:Src/main.c    ****         sdBufferA[i][118] = 0x0A;
+ 172:Src/main.c    ****     }
+ 173:Src/main.c    **** 
+ 174:Src/main.c    ****     for(int i = 0; i < 20; i++) {
+ 175:Src/main.c    ****         for(int j = 0; j < 119; j++) {
+ 176:Src/main.c    ****             sdBufferB[i][j] = sdBufferA[i][j];
+ 177:Src/main.c    ****             sdBufferC[i][j] = sdBufferA[i][j];
+ 178:Src/main.c    ****         }
+ 179:Src/main.c    ****     }
+ 180:Src/main.c    **** 
+ 181:Src/main.c    **** 
+ 182:Src/main.c    ****     HAL_I2C_Mem_Read(&hi2c1, 0xD0, 0x75, I2C_MEMADD_SIZE_8BIT, &mpuConfigRx, 1, 100);
+ 183:Src/main.c    ****     // sprintf(txBuffer, "Slave Address: %x \r", mpuConfigRx);
+ 184:Src/main.c    ****     // HAL_UART_Transmit(&huart1, (uint8_t *)txBuffer, strlen(txBuffer), 500);
+ 185:Src/main.c    **** 
+ 186:Src/main.c    ****     HAL_I2C_Mem_Read(&hi2c1, 0xD0, 0x1A, I2C_MEMADD_SIZE_8BIT, &mpuConfigRx, 1, 100);
+ 187:Src/main.c    ****     // sprintf(txBuffer, "FIFO config: %x \r", mpuConfigRx);
+ 188:Src/main.c    ****     // HAL_UART_Transmit(&huart1, (uint8_t *)txBuffer, strlen(txBuffer), 500);
+ 189:Src/main.c    **** 
+ 190:Src/main.c    ****     mpuConfigTx = 0b00001000;
+ 191:Src/main.c    ****     HAL_I2C_Mem_Write(&hi2c1, 0xD0, 0x1B, I2C_MEMADD_SIZE_8BIT, &mpuConfigTx, 1, 100);
+ 192:Src/main.c    ****     HAL_I2C_Mem_Read(&hi2c1, 0xD0, 0x1B, I2C_MEMADD_SIZE_8BIT, &mpuConfigRx, 1, 100);
+ 193:Src/main.c    ****     // sprintf(txBuffer, "Gyr cfig: %x \r", mpuConfigRx);
+ 194:Src/main.c    ****     // HAL_UART_Transmit(&huart1, (uint8_t *)txBuffer, strlen(txBuffer), 500);
+ 195:Src/main.c    **** 
+ 196:Src/main.c    ****     mpuConfigTx = 0b00011000;
+ 197:Src/main.c    ****     HAL_I2C_Mem_Write(&hi2c1, 0xD0, 0x1C, I2C_MEMADD_SIZE_8BIT, &mpuConfigTx, 1, 100);
+ 198:Src/main.c    ****     HAL_I2C_Mem_Read(&hi2c1, 0xD0, 0x1C, I2C_MEMADD_SIZE_8BIT, &mpuConfigRx, 1, 100);
+ 199:Src/main.c    ****     // sprintf(txBuffer, "Acc cfig: %x \r", mpuConfigRx);
+ 200:Src/main.c    ****     // HAL_UART_Transmit(&huart1, (uint8_t *)txBuffer, strlen(txBuffer), 500);
+ 201:Src/main.c    **** 
+ 202:Src/main.c    ****     HAL_UART_Receive_DMA(&huart3, (uint8_t *)&rawGps, 51);
+ 203:Src/main.c    ****     HAL_TIM_Base_Start_IT(&htim3);
+ 204:Src/main.c    ****     HAL_ADCEx_Calibration_Start(&hadc1);
+ARM GAS  C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s 			page 5
+
+
+ 205:Src/main.c    ****     HAL_ADC_Start_DMA(&hadc1, (uint32_t *) rawAdc, 7);
+ 206:Src/main.c    **** 
+ 207:Src/main.c    **** 
+ 208:Src/main.c    ****     adcReady = 0;
+ 209:Src/main.c    ****     mpuReady = 0;
+ 210:Src/main.c    ****     gpsReady = 0;
+ 211:Src/main.c    ****     timReady = 0;
+ 212:Src/main.c    ****     nBuffer = 1;
+ 213:Src/main.c    ****     /* USER CODE END 2 */
+ 214:Src/main.c    **** 
+ 215:Src/main.c    ****     /* Infinite loop */
+ 216:Src/main.c    ****     /* USER CODE BEGIN WHILE */
+ 217:Src/main.c    ****     while (1)
+ 218:Src/main.c    ****     {
+ 219:Src/main.c    ****         if (gpsReady == 0) {
+ 220:Src/main.c    ****             HAL_GPIO_WritePin(GPIOB, GPIO_PIN_15, GPIO_PIN_SET);
+ 221:Src/main.c    ****             if (rawGps[1] == 0x47 && rawGps[17] == 0x41) {
+ 222:Src/main.c    ****                 // HAL_GPIO_WritePin(GPIOB, GPIO_PIN_15, GPIO_PIN_SET);
+ 223:Src/main.c    ****                 if(nBuffer == 1) {
+ 224:Src/main.c    ****                     sdBufferA[0][11] = 0x2D;				//-
+ 225:Src/main.c    ****                     for(int j = 12; j < 22; j++) { 			//latitude
+ 226:Src/main.c    ****                         sdBufferA[0][j] = rawGps[j+7];
+ 227:Src/main.c    ****                     }
+ 228:Src/main.c    ****                     sdBufferA[0][23] = 0x2D;				//-
+ 229:Src/main.c    ****                     for(int j = 24; j < 34; j++) { 			//longitude
+ 230:Src/main.c    ****                         sdBufferA[0][j] = rawGps[j+9];
+ 231:Src/main.c    ****                     }
+ 232:Src/main.c    ****                     for(int j = 35; j < 40; j++) { 			//speed
+ 233:Src/main.c    ****                         sdBufferA[0][j] = rawGps[j+11];
+ 234:Src/main.c    ****                     }
+ 235:Src/main.c    **** 
+ 236:Src/main.c    ****                     for(int i = 1; i < 20; i++) {
+ 237:Src/main.c    ****                         for(int j = 11; j < 41; j++) {
+ 238:Src/main.c    ****                             sdBufferA[i][j] = sdBufferA[0][j];
+ 239:Src/main.c    ****                         }
+ 240:Src/main.c    ****                     }
+ 241:Src/main.c    **** 
+ 242:Src/main.c    ****                     for(int i = 0; i < 20; i++) {
+ 243:Src/main.c    ****                         for(int j = 11; j < 41; j++) {
+ 244:Src/main.c    ****                             sdBufferB[i][j] = sdBufferA[i][j];
+ 245:Src/main.c    ****                             sdBufferC[i][j] = sdBufferA[i][j];
+ 246:Src/main.c    ****                         }
+ 247:Src/main.c    ****                     }
+ 248:Src/main.c    ****                 }
+ 249:Src/main.c    ****                 else if(nBuffer == 2) {
+ 250:Src/main.c    ****                     sdBufferB[0][11] = 0x2D;				//-
+ 251:Src/main.c    ****                     for(int j = 12; j < 22; j++) { 			//latitude
+ 252:Src/main.c    ****                         sdBufferB[0][j] = rawGps[j+7];
+ 253:Src/main.c    ****                     }
+ 254:Src/main.c    ****                     sdBufferB[0][23] = 0x2D;				//-
+ 255:Src/main.c    ****                     for(int j = 24; j < 34; j++) { 			//longitude
+ 256:Src/main.c    ****                         sdBufferB[0][j] = rawGps[j+9];
+ 257:Src/main.c    ****                     }
+ 258:Src/main.c    ****                     for(int j = 35; j < 40; j++) { 			//speed
+ 259:Src/main.c    ****                         sdBufferB[0][j] = rawGps[j+11];
+ 260:Src/main.c    ****                     }
+ 261:Src/main.c    **** 
+ARM GAS  C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s 			page 6
+
+
+ 262:Src/main.c    ****                     for(int i = 1; i < 20; i++) {
+ 263:Src/main.c    ****                         for(int j = 11; j < 41; j++) {
+ 264:Src/main.c    ****                             sdBufferB[i][j] = sdBufferB[0][j];
+ 265:Src/main.c    ****                         }
+ 266:Src/main.c    ****                     }
+ 267:Src/main.c    **** 
+ 268:Src/main.c    ****                     for(int i = 0; i < 20; i++) {
+ 269:Src/main.c    ****                         for(int j = 11; j < 41; j++) {
+ 270:Src/main.c    ****                             sdBufferA[i][j] = sdBufferB[i][j];
+ 271:Src/main.c    ****                             sdBufferC[i][j] = sdBufferB[i][j];
+ 272:Src/main.c    ****                         }
+ 273:Src/main.c    ****                     }
+ 274:Src/main.c    ****                 }
+ 275:Src/main.c    ****                 else if(nBuffer == 3) {
+ 276:Src/main.c    ****                     sdBufferC[0][11] = 0x2D;				//-
+ 277:Src/main.c    ****                     for(int j = 12; j < 22; j++) { 			//latitude
+ 278:Src/main.c    ****                         sdBufferC[0][j] = rawGps[j+7];
+ 279:Src/main.c    ****                     }
+ 280:Src/main.c    ****                     sdBufferC[0][23] = 0x2D;				//-
+ 281:Src/main.c    ****                     for(int j = 24; j < 34; j++) { 			//longitude
+ 282:Src/main.c    ****                         sdBufferC[0][j] = rawGps[j+9];
+ 283:Src/main.c    ****                     }
+ 284:Src/main.c    ****                     for(int j = 35; j < 40; j++) { 			//speed
+ 285:Src/main.c    ****                         sdBufferC[0][j] = rawGps[j+11];
+ 286:Src/main.c    ****                     }
+ 287:Src/main.c    **** 
+ 288:Src/main.c    ****                     for(int i = 1; i < 20; i++) {
+ 289:Src/main.c    ****                         for(int j = 11; j < 41; j++) {
+ 290:Src/main.c    ****                             sdBufferC[i][j] = sdBufferC[0][j];
+ 291:Src/main.c    ****                         }
+ 292:Src/main.c    ****                     }
+ 293:Src/main.c    **** 
+ 294:Src/main.c    ****                     for(int i = 0; i < 20; i++) {
+ 295:Src/main.c    ****                         for(int j = 11; j < 41; j++) {
+ 296:Src/main.c    ****                             sdBufferA[i][j] = sdBufferC[i][j];
+ 297:Src/main.c    ****                             sdBufferB[i][j] = sdBufferC[i][j];
+ 298:Src/main.c    ****                         }
+ 299:Src/main.c    ****                     }
+ 300:Src/main.c    ****                 }
+ 301:Src/main.c    ****                 HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_SET);
+ 302:Src/main.c    ****                 // HAL_GPIO_WritePin(GPIOB, GPIO_PIN_15, GPIO_PIN_RESET);
+ 303:Src/main.c    ****             } else {
+ 304:Src/main.c    ****                 HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_RESET);
+ 305:Src/main.c    ****             }
+ 306:Src/main.c    ****             gpsReady = 1;
+ 307:Src/main.c    ****             // HAL_Delay(1);
+ 308:Src/main.c    ****             HAL_UART_Receive_DMA(&huart3, (uint8_t *)&rawGps, 51);
+ 309:Src/main.c    ****             HAL_GPIO_WritePin(GPIOB, GPIO_PIN_15, GPIO_PIN_RESET);
+ 310:Src/main.c    ****         }
+ 311:Src/main.c    **** 
+ 312:Src/main.c    **** 
+ 313:Src/main.c    **** 
+ 314:Src/main.c    ****         if (mpuReady == 1 && timReady == 1) {
+ 315:Src/main.c    ****             if (adcReady == 1) {
+ 316:Src/main.c    ****                 HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, GPIO_PIN_SET);
+ 317:Src/main.c    ****                 if(nBuffer == 1) {
+ 318:Src/main.c    ****                     // HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
+ARM GAS  C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s 			page 7
+
+
+ 319:Src/main.c    ****                     nBuffer = 2;
+ 320:Src/main.c    ****                     adcReady = 0;
+ 321:Src/main.c    ****                     mpuReady = 0;
+ 322:Src/main.c    ****                     gpsReady = 0;
+ 323:Src/main.c    ****                     timReady = 0;
+ 324:Src/main.c    ****                     f_write(&MyFile, sdBufferA, sizeof(sdBufferA), (void *)&byteswritten);
+ 325:Src/main.c    ****                     f_sync(&MyFile);
+ 326:Src/main.c    ****                     // HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
+ 327:Src/main.c    ****                 }
+ 328:Src/main.c    ****                 else if(nBuffer == 2) {
+ 329:Src/main.c    ****                     // HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
+ 330:Src/main.c    ****                     nBuffer = 3;
+ 331:Src/main.c    ****                     adcReady = 0;
+ 332:Src/main.c    ****                     mpuReady = 0;
+ 333:Src/main.c    ****                     gpsReady = 0;
+ 334:Src/main.c    ****                     timReady = 0;
+ 335:Src/main.c    ****                     f_write(&MyFile, sdBufferB, sizeof(sdBufferB), (void *)&byteswritten);
+ 336:Src/main.c    ****                     f_sync(&MyFile);
+ 337:Src/main.c    ****                     // HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
+ 338:Src/main.c    ****                 }
+ 339:Src/main.c    ****                 else if(nBuffer == 3) {
+ 340:Src/main.c    ****                     // HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
+ 341:Src/main.c    ****                     nBuffer = 1;
+ 342:Src/main.c    ****                     adcReady = 0;
+ 343:Src/main.c    ****                     mpuReady = 0;
+ 344:Src/main.c    ****                     gpsReady = 0;
+ 345:Src/main.c    ****                     timReady = 0;
+ 346:Src/main.c    ****                     f_write(&MyFile, sdBufferC, sizeof(sdBufferC), (void *)&byteswritten);
+ 347:Src/main.c    ****                     f_sync(&MyFile);
+ 348:Src/main.c    ****                     // HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
+ 349:Src/main.c    ****                 }
+ 350:Src/main.c    ****                 HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+ 351:Src/main.c    ****                 // HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
+ 352:Src/main.c    ****                 HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, GPIO_PIN_RESET);
+ 353:Src/main.c    ****             }
+ 354:Src/main.c    ****         }
+ 355:Src/main.c    **** 
+ 356:Src/main.c    ****         /* USER CODE END WHILE */
+ 357:Src/main.c    **** 
+ 358:Src/main.c    ****         /* USER CODE BEGIN 3 */
+ 359:Src/main.c    ****     }
+ 360:Src/main.c    ****     /* USER CODE END 3 */
+ 361:Src/main.c    **** }
+ 362:Src/main.c    **** 
+ 363:Src/main.c    **** /**
+ 364:Src/main.c    ****   * @brief System Clock Configuration
+ 365:Src/main.c    ****   * @retval None
+ 366:Src/main.c    ****   */
+ 367:Src/main.c    **** void SystemClock_Config(void)
+ 368:Src/main.c    **** {
+  26              		.loc 1 368 0
+  27              		.cfi_startproc
+  28              		@ args = 0, pretend = 0, frame = 80
+  29              		@ frame_needed = 0, uses_anonymous_args = 0
+  30 0000 30B5     		push	{r4, r5, lr}
+  31              	.LCFI0:
+  32              		.cfi_def_cfa_offset 12
+ARM GAS  C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s 			page 8
+
+
+  33              		.cfi_offset 4, -12
+  34              		.cfi_offset 5, -8
+  35              		.cfi_offset 14, -4
+  36 0002 95B0     		sub	sp, sp, #84
+  37              	.LCFI1:
+  38              		.cfi_def_cfa_offset 96
+ 369:Src/main.c    ****     RCC_OscInitTypeDef RCC_OscInitStruct = {0};
+  39              		.loc 1 369 0
+  40 0004 0024     		movs	r4, #0
+  41 0006 0C94     		str	r4, [sp, #48]
+  42 0008 0D94     		str	r4, [sp, #52]
+  43 000a 0F94     		str	r4, [sp, #60]
+  44 000c 1094     		str	r4, [sp, #64]
+ 370:Src/main.c    ****     RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
+  45              		.loc 1 370 0
+  46 000e 0594     		str	r4, [sp, #20]
+  47 0010 0694     		str	r4, [sp, #24]
+  48 0012 0794     		str	r4, [sp, #28]
+  49 0014 0894     		str	r4, [sp, #32]
+  50 0016 0994     		str	r4, [sp, #36]
+ 371:Src/main.c    ****     RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
+  51              		.loc 1 371 0
+  52 0018 0194     		str	r4, [sp, #4]
+  53 001a 0294     		str	r4, [sp, #8]
+  54 001c 0394     		str	r4, [sp, #12]
+  55 001e 0494     		str	r4, [sp, #16]
+ 372:Src/main.c    **** 
+ 373:Src/main.c    ****     /** Initializes the CPU, AHB and APB busses clocks
+ 374:Src/main.c    ****     */
+ 375:Src/main.c    ****     RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+  56              		.loc 1 375 0
+  57 0020 0122     		movs	r2, #1
+  58 0022 0A92     		str	r2, [sp, #40]
+ 376:Src/main.c    ****     RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+  59              		.loc 1 376 0
+  60 0024 4FF48033 		mov	r3, #65536
+  61 0028 0B93     		str	r3, [sp, #44]
+ 377:Src/main.c    ****     RCC_OscInitStruct.HSEPredivValue = RCC_HSE_PREDIV_DIV1;
+ 378:Src/main.c    ****     RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+  62              		.loc 1 378 0
+  63 002a 0E92     		str	r2, [sp, #56]
+ 379:Src/main.c    ****     RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+  64              		.loc 1 379 0
+  65 002c 0225     		movs	r5, #2
+  66 002e 1195     		str	r5, [sp, #68]
+ 380:Src/main.c    ****     RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+  67              		.loc 1 380 0
+  68 0030 1293     		str	r3, [sp, #72]
+ 381:Src/main.c    ****     RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL9;
+  69              		.loc 1 381 0
+  70 0032 4FF4E013 		mov	r3, #1835008
+  71 0036 1393     		str	r3, [sp, #76]
+ 382:Src/main.c    ****     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
+  72              		.loc 1 382 0
+  73 0038 0AA8     		add	r0, sp, #40
+  74 003a FFF7FEFF 		bl	HAL_RCC_OscConfig
+  75              	.LVL0:
+ARM GAS  C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s 			page 9
+
+
+ 383:Src/main.c    ****     {
+ 384:Src/main.c    ****         Error_Handler();
+ 385:Src/main.c    ****     }
+ 386:Src/main.c    ****     /** Initializes the CPU, AHB and APB busses clocks
+ 387:Src/main.c    ****     */
+ 388:Src/main.c    ****     RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
+  76              		.loc 1 388 0
+  77 003e 0F23     		movs	r3, #15
+  78 0040 0593     		str	r3, [sp, #20]
+ 389:Src/main.c    ****                                   |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
+ 390:Src/main.c    ****     RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+  79              		.loc 1 390 0
+  80 0042 0695     		str	r5, [sp, #24]
+ 391:Src/main.c    ****     RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+  81              		.loc 1 391 0
+  82 0044 0794     		str	r4, [sp, #28]
+ 392:Src/main.c    ****     RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
+  83              		.loc 1 392 0
+  84 0046 4FF48063 		mov	r3, #1024
+  85 004a 0893     		str	r3, [sp, #32]
+ 393:Src/main.c    ****     RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+  86              		.loc 1 393 0
+  87 004c 0994     		str	r4, [sp, #36]
+ 394:Src/main.c    **** 
+ 395:Src/main.c    ****     if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
+  88              		.loc 1 395 0
+  89 004e 2946     		mov	r1, r5
+  90 0050 05A8     		add	r0, sp, #20
+  91 0052 FFF7FEFF 		bl	HAL_RCC_ClockConfig
+  92              	.LVL1:
+ 396:Src/main.c    ****     {
+ 397:Src/main.c    ****         Error_Handler();
+ 398:Src/main.c    ****     }
+ 399:Src/main.c    ****     PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC|RCC_PERIPHCLK_USB;
+  93              		.loc 1 399 0
+  94 0056 1223     		movs	r3, #18
+  95 0058 0193     		str	r3, [sp, #4]
+ 400:Src/main.c    ****     PeriphClkInit.AdcClockSelection = RCC_ADCPCLK2_DIV6;
+  96              		.loc 1 400 0
+  97 005a 4FF40043 		mov	r3, #32768
+  98 005e 0393     		str	r3, [sp, #12]
+ 401:Src/main.c    ****     PeriphClkInit.UsbClockSelection = RCC_USBCLKSOURCE_PLL_DIV1_5;
+  99              		.loc 1 401 0
+ 100 0060 0494     		str	r4, [sp, #16]
+ 402:Src/main.c    ****     if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
+ 101              		.loc 1 402 0
+ 102 0062 01A8     		add	r0, sp, #4
+ 103 0064 FFF7FEFF 		bl	HAL_RCCEx_PeriphCLKConfig
+ 104              	.LVL2:
+ 403:Src/main.c    ****     {
+ 404:Src/main.c    ****         Error_Handler();
+ 405:Src/main.c    ****     }
+ 406:Src/main.c    **** }
+ 105              		.loc 1 406 0
+ 106 0068 15B0     		add	sp, sp, #84
+ 107              	.LCFI2:
+ 108              		.cfi_def_cfa_offset 12
+ARM GAS  C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s 			page 10
+
+
+ 109              		@ sp needed
+ 110 006a 30BD     		pop	{r4, r5, pc}
+ 111              		.cfi_endproc
+ 112              	.LFE67:
+ 114              		.section	.text.main,"ax",%progbits
+ 115              		.align	1
+ 116              		.global	main
+ 117              		.syntax unified
+ 118              		.thumb
+ 119              		.thumb_func
+ 120              		.fpu softvfp
+ 122              	main:
+ 123              	.LFB66:
+  96:Src/main.c    ****     /* USER CODE BEGIN 1 */
+ 124              		.loc 1 96 0
+ 125              		.cfi_startproc
+ 126              		@ args = 0, pretend = 0, frame = 208
+ 127              		@ frame_needed = 0, uses_anonymous_args = 0
+ 128 0000 2DE9F041 		push	{r4, r5, r6, r7, r8, lr}
+ 129              	.LCFI3:
+ 130              		.cfi_def_cfa_offset 24
+ 131              		.cfi_offset 4, -24
+ 132              		.cfi_offset 5, -20
+ 133              		.cfi_offset 6, -16
+ 134              		.cfi_offset 7, -12
+ 135              		.cfi_offset 8, -8
+ 136              		.cfi_offset 14, -4
+ 137 0004 B8B0     		sub	sp, sp, #224
+ 138              	.LCFI4:
+ 139              		.cfi_def_cfa_offset 248
+ 140              	.LVL3:
+ 110:Src/main.c    **** 
+ 141              		.loc 1 110 0
+ 142 0006 FFF7FEFF 		bl	HAL_Init
+ 143              	.LVL4:
+ 117:Src/main.c    **** 
+ 144              		.loc 1 117 0
+ 145 000a FFF7FEFF 		bl	SystemClock_Config
+ 146              	.LVL5:
+ 124:Src/main.c    ****     MX_DMA_Init();
+ 147              		.loc 1 124 0
+ 148 000e FFF7FEFF 		bl	MX_GPIO_Init
+ 149              	.LVL6:
+ 125:Src/main.c    ****     MX_TIM3_Init();
+ 150              		.loc 1 125 0
+ 151 0012 FFF7FEFF 		bl	MX_DMA_Init
+ 152              	.LVL7:
+ 126:Src/main.c    ****     MX_USART1_UART_Init();
+ 153              		.loc 1 126 0
+ 154 0016 FFF7FEFF 		bl	MX_TIM3_Init
+ 155              	.LVL8:
+ 127:Src/main.c    ****     MX_SPI1_Init();
+ 156              		.loc 1 127 0
+ 157 001a FFF7FEFF 		bl	MX_USART1_UART_Init
+ 158              	.LVL9:
+ 128:Src/main.c    ****     MX_USART3_UART_Init();
+ 159              		.loc 1 128 0
+ARM GAS  C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s 			page 11
+
+
+ 160 001e FFF7FEFF 		bl	MX_SPI1_Init
+ 161              	.LVL10:
+ 129:Src/main.c    ****     MX_ADC1_Init();
+ 162              		.loc 1 129 0
+ 163 0022 FFF7FEFF 		bl	MX_USART3_UART_Init
+ 164              	.LVL11:
+ 130:Src/main.c    ****     MX_I2C1_Init();
+ 165              		.loc 1 130 0
+ 166 0026 FFF7FEFF 		bl	MX_ADC1_Init
+ 167              	.LVL12:
+ 131:Src/main.c    ****     MX_USB_PCD_Init();
+ 168              		.loc 1 131 0
+ 169 002a FFF7FEFF 		bl	MX_I2C1_Init
+ 170              	.LVL13:
+ 132:Src/main.c    ****     /* USER CODE BEGIN 2 */
+ 171              		.loc 1 132 0
+ 172 002e FFF7FEFF 		bl	MX_USB_PCD_Init
+ 173              	.LVL14:
+ 134:Src/main.c    ****     HAL_UART_Transmit(&huart1, (uint8_t *)textTxBuffer, strlen(textTxBuffer), 500);
+ 174              		.loc 1 134 0
+ 175 0032 C14D     		ldr	r5, .L83
+ 176 0034 C14C     		ldr	r4, .L83+4
+ 177 0036 0FCC     		ldmia	r4!, {r0, r1, r2, r3}
+ 178 0038 2860     		str	r0, [r5]	@ unaligned
+ 179 003a 6960     		str	r1, [r5, #4]	@ unaligned
+ 180 003c AA60     		str	r2, [r5, #8]	@ unaligned
+ 181 003e EB60     		str	r3, [r5, #12]	@ unaligned
+ 182 0040 03CC     		ldmia	r4!, {r0, r1}
+ 183 0042 2861     		str	r0, [r5, #16]	@ unaligned
+ 184 0044 6961     		str	r1, [r5, #20]	@ unaligned
+ 135:Src/main.c    **** 
+ 185              		.loc 1 135 0
+ 186 0046 2846     		mov	r0, r5
+ 187 0048 FFF7FEFF 		bl	strlen
+ 188              	.LVL15:
+ 189 004c 4FF4FA73 		mov	r3, #500
+ 190 0050 82B2     		uxth	r2, r0
+ 191 0052 2946     		mov	r1, r5
+ 192 0054 BA48     		ldr	r0, .L83+8
+ 193 0056 FFF7FEFF 		bl	HAL_UART_Transmit
+ 194              	.LVL16:
+ 137:Src/main.c    ****     while (res == FR_OK) {
+ 195              		.loc 1 137 0
+ 196 005a 0022     		movs	r2, #0
+ 197 005c B949     		ldr	r1, .L83+12
+ 198 005e BA48     		ldr	r0, .L83+16
+ 199 0060 FFF7FEFF 		bl	f_mount
+ 200              	.LVL17:
+ 100:Src/main.c    **** 
+ 201              		.loc 1 100 0
+ 202 0064 0024     		movs	r4, #0
+ 138:Src/main.c    ****         sprintf(fileName, "file%04d.dlf", ++fileNumber);
+ 203              		.loc 1 138 0
+ 204 0066 0DE0     		b	.L4
+ 205              	.LVL18:
+ 206              	.L5:
+ 139:Src/main.c    ****         res = f_open(&MyFile, fileName, FA_OPEN_EXISTING | FA_READ);
+ARM GAS  C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s 			page 12
+
+
+ 207              		.loc 1 139 0
+ 208 0068 0134     		adds	r4, r4, #1
+ 209              	.LVL19:
+ 210 006a A4B2     		uxth	r4, r4
+ 211              	.LVL20:
+ 212 006c 2246     		mov	r2, r4
+ 213 006e B749     		ldr	r1, .L83+20
+ 214 0070 34A8     		add	r0, sp, #208
+ 215 0072 FFF7FEFF 		bl	sprintf
+ 216              	.LVL21:
+ 140:Src/main.c    ****     }
+ 217              		.loc 1 140 0
+ 218 0076 0122     		movs	r2, #1
+ 219 0078 34A9     		add	r1, sp, #208
+ 220 007a B548     		ldr	r0, .L83+24
+ 221 007c FFF7FEFF 		bl	f_open
+ 222              	.LVL22:
+ 223 0080 B44B     		ldr	r3, .L83+28
+ 224 0082 1870     		strb	r0, [r3]
+ 225              	.LVL23:
+ 226              	.L4:
+ 138:Src/main.c    ****         sprintf(fileName, "file%04d.dlf", ++fileNumber);
+ 227              		.loc 1 138 0
+ 228 0084 B34B     		ldr	r3, .L83+28
+ 229 0086 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 230 0088 002B     		cmp	r3, #0
+ 231 008a EDD0     		beq	.L5
+ 142:Src/main.c    ****     sprintf(fileHeader,
+ 232              		.loc 1 142 0
+ 233 008c B04C     		ldr	r4, .L83+24
+ 234              	.LVL24:
+ 235 008e 1222     		movs	r2, #18
+ 236 0090 34A9     		add	r1, sp, #208
+ 237 0092 2046     		mov	r0, r4
+ 238 0094 FFF7FEFF 		bl	f_open
+ 239              	.LVL25:
+ 143:Src/main.c    ****             "#V2\r#DATASTART\rDatalog Time; GPS Latitude; GPS Longitude; GPS Speed;Ax;Ay;Az;Gx;Gy;G
+ 240              		.loc 1 143 0
+ 241 0098 B825     		movs	r5, #184
+ 242 009a 2A46     		mov	r2, r5
+ 243 009c AE49     		ldr	r1, .L83+32
+ 244 009e 06A8     		add	r0, sp, #24
+ 245 00a0 FFF7FEFF 		bl	memcpy
+ 246              	.LVL26:
+ 145:Src/main.c    ****     f_write(&MyFile, fileHeader, sizeof(fileHeader), (void *)&byteswritten);
+ 247              		.loc 1 145 0
+ 248 00a4 0A23     		movs	r3, #10
+ 249 00a6 8DF8CF30 		strb	r3, [sp, #207]
+ 146:Src/main.c    ****     f_sync(&MyFile);
+ 250              		.loc 1 146 0
+ 251 00aa AC4B     		ldr	r3, .L83+36
+ 252 00ac 2A46     		mov	r2, r5
+ 253 00ae 06A9     		add	r1, sp, #24
+ 254 00b0 2046     		mov	r0, r4
+ 255 00b2 FFF7FEFF 		bl	f_write
+ 256              	.LVL27:
+ 147:Src/main.c    **** 
+ARM GAS  C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s 			page 13
+
+
+ 257              		.loc 1 147 0
+ 258 00b6 2046     		mov	r0, r4
+ 259 00b8 FFF7FEFF 		bl	f_sync
+ 260              	.LVL28:
+ 261              	.LBB2:
+ 150:Src/main.c    ****         for(int j = 0; j < 82; j++) {
+ 262              		.loc 1 150 0
+ 263 00bc 0020     		movs	r0, #0
+ 264 00be 36E0     		b	.L6
+ 265              	.LVL29:
+ 266              	.L7:
+ 267              	.LBB3:
+ 152:Src/main.c    ****         }
+ 268              		.loc 1 152 0 discriminator 3
+ 269 00c0 C0EBC003 		rsb	r3, r0, r0, lsl #3
+ 270 00c4 03EB0313 		add	r3, r3, r3, lsl #4
+ 271 00c8 A549     		ldr	r1, .L83+40
+ 272 00ca 0B44     		add	r3, r3, r1
+ 273 00cc 3021     		movs	r1, #48
+ 274 00ce 9954     		strb	r1, [r3, r2]
+ 151:Src/main.c    ****             sdBufferA[i][j] = 0x30;
+ 275              		.loc 1 151 0 discriminator 3
+ 276 00d0 0132     		adds	r2, r2, #1
+ 277              	.LVL30:
+ 278              	.L8:
+ 151:Src/main.c    ****             sdBufferA[i][j] = 0x30;
+ 279              		.loc 1 151 0 is_stmt 0 discriminator 1
+ 280 00d2 512A     		cmp	r2, #81
+ 281 00d4 F4DD     		ble	.L7
+ 282              	.LBE3:
+ 154:Src/main.c    ****         sdBufferA[i][22] = 0x41;
+ 283              		.loc 1 154 0 is_stmt 1 discriminator 2
+ 284 00d6 C0EBC003 		rsb	r3, r0, r0, lsl #3
+ 285 00da 03EB0312 		add	r2, r3, r3, lsl #4
+ 286              	.LVL31:
+ 287 00de A04B     		ldr	r3, .L83+40
+ 288 00e0 1344     		add	r3, r3, r2
+ 289 00e2 4122     		movs	r2, #65
+ 290 00e4 9A72     		strb	r2, [r3, #10]
+ 155:Src/main.c    ****         sdBufferA[i][34] = 0x41;
+ 291              		.loc 1 155 0 discriminator 2
+ 292 00e6 9A75     		strb	r2, [r3, #22]
+ 156:Src/main.c    ****         sdBufferA[i][40] = 0x41;
+ 293              		.loc 1 156 0 discriminator 2
+ 294 00e8 83F82220 		strb	r2, [r3, #34]
+ 157:Src/main.c    ****         sdBufferA[i][47] = 0x41;
+ 295              		.loc 1 157 0 discriminator 2
+ 296 00ec 83F82820 		strb	r2, [r3, #40]
+ 158:Src/main.c    ****         sdBufferA[i][54] = 0x41;
+ 297              		.loc 1 158 0 discriminator 2
+ 298 00f0 83F82F20 		strb	r2, [r3, #47]
+ 159:Src/main.c    ****         sdBufferA[i][61] = 0x41;
+ 299              		.loc 1 159 0 discriminator 2
+ 300 00f4 83F83620 		strb	r2, [r3, #54]
+ 160:Src/main.c    ****         sdBufferA[i][68] = 0x41;
+ 301              		.loc 1 160 0 discriminator 2
+ 302 00f8 83F83D20 		strb	r2, [r3, #61]
+ARM GAS  C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s 			page 14
+
+
+ 161:Src/main.c    ****         sdBufferA[i][75] = 0x41;
+ 303              		.loc 1 161 0 discriminator 2
+ 304 00fc 83F84420 		strb	r2, [r3, #68]
+ 162:Src/main.c    ****         sdBufferA[i][82] = 0x41;
+ 305              		.loc 1 162 0 discriminator 2
+ 306 0100 83F84B20 		strb	r2, [r3, #75]
+ 163:Src/main.c    ****         sdBufferA[i][87] = 0x41;
+ 307              		.loc 1 163 0 discriminator 2
+ 308 0104 83F85220 		strb	r2, [r3, #82]
+ 164:Src/main.c    ****         sdBufferA[i][92] = 0x41;
+ 309              		.loc 1 164 0 discriminator 2
+ 310 0108 83F85720 		strb	r2, [r3, #87]
+ 165:Src/main.c    ****         sdBufferA[i][97] = 0x41;
+ 311              		.loc 1 165 0 discriminator 2
+ 312 010c 83F85C20 		strb	r2, [r3, #92]
+ 166:Src/main.c    ****         sdBufferA[i][102] = 0x41;
+ 313              		.loc 1 166 0 discriminator 2
+ 314 0110 83F86120 		strb	r2, [r3, #97]
+ 167:Src/main.c    ****         sdBufferA[i][107] = 0x41;
+ 315              		.loc 1 167 0 discriminator 2
+ 316 0114 83F86620 		strb	r2, [r3, #102]
+ 168:Src/main.c    ****         sdBufferA[i][112] = 0x41;
+ 317              		.loc 1 168 0 discriminator 2
+ 318 0118 83F86B20 		strb	r2, [r3, #107]
+ 169:Src/main.c    ****         sdBufferA[i][117] = 0x0D;
+ 319              		.loc 1 169 0 discriminator 2
+ 320 011c 83F87020 		strb	r2, [r3, #112]
+ 170:Src/main.c    ****         sdBufferA[i][118] = 0x0A;
+ 321              		.loc 1 170 0 discriminator 2
+ 322 0120 0D22     		movs	r2, #13
+ 323 0122 83F87520 		strb	r2, [r3, #117]
+ 171:Src/main.c    ****     }
+ 324              		.loc 1 171 0 discriminator 2
+ 325 0126 0A22     		movs	r2, #10
+ 326 0128 83F87620 		strb	r2, [r3, #118]
+ 150:Src/main.c    ****         for(int j = 0; j < 82; j++) {
+ 327              		.loc 1 150 0 discriminator 2
+ 328 012c 0130     		adds	r0, r0, #1
+ 329              	.LVL32:
+ 330              	.L6:
+ 150:Src/main.c    ****         for(int j = 0; j < 82; j++) {
+ 331              		.loc 1 150 0 is_stmt 0 discriminator 1
+ 332 012e 1328     		cmp	r0, #19
+ 333 0130 01DC     		bgt	.L68
+ 334              	.LBB4:
+ 151:Src/main.c    ****             sdBufferA[i][j] = 0x30;
+ 335              		.loc 1 151 0 is_stmt 1
+ 336 0132 0022     		movs	r2, #0
+ 337 0134 CDE7     		b	.L8
+ 338              	.L68:
+ 339              	.LBE4:
+ 340              	.LBE2:
+ 341              	.LBB5:
+ 174:Src/main.c    ****         for(int j = 0; j < 119; j++) {
+ 342              		.loc 1 174 0
+ 343 0136 0024     		movs	r4, #0
+ 344 0138 10E0     		b	.L9
+ARM GAS  C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s 			page 15
+
+
+ 345              	.LVL33:
+ 346              	.L10:
+ 347              	.LBB6:
+ 176:Src/main.c    ****             sdBufferC[i][j] = sdBufferA[i][j];
+ 348              		.loc 1 176 0 discriminator 3
+ 349 013a C4EBC403 		rsb	r3, r4, r4, lsl #3
+ 350 013e 03EB0313 		add	r3, r3, r3, lsl #4
+ 351 0142 8749     		ldr	r1, .L83+40
+ 352 0144 1944     		add	r1, r1, r3
+ 353 0146 885C     		ldrb	r0, [r1, r2]	@ zero_extendqisi2
+ 354 0148 8649     		ldr	r1, .L83+44
+ 355 014a 1944     		add	r1, r1, r3
+ 356 014c 8854     		strb	r0, [r1, r2]
+ 177:Src/main.c    ****         }
+ 357              		.loc 1 177 0 discriminator 3
+ 358 014e 8649     		ldr	r1, .L83+48
+ 359 0150 0B44     		add	r3, r3, r1
+ 360 0152 9854     		strb	r0, [r3, r2]
+ 175:Src/main.c    ****             sdBufferB[i][j] = sdBufferA[i][j];
+ 361              		.loc 1 175 0 discriminator 3
+ 362 0154 0132     		adds	r2, r2, #1
+ 363              	.LVL34:
+ 364              	.L11:
+ 175:Src/main.c    ****             sdBufferB[i][j] = sdBufferA[i][j];
+ 365              		.loc 1 175 0 is_stmt 0 discriminator 1
+ 366 0156 762A     		cmp	r2, #118
+ 367 0158 EFDD     		ble	.L10
+ 368              	.LBE6:
+ 174:Src/main.c    ****         for(int j = 0; j < 119; j++) {
+ 369              		.loc 1 174 0 is_stmt 1 discriminator 2
+ 370 015a 0134     		adds	r4, r4, #1
+ 371              	.LVL35:
+ 372              	.L9:
+ 174:Src/main.c    ****         for(int j = 0; j < 119; j++) {
+ 373              		.loc 1 174 0 is_stmt 0 discriminator 1
+ 374 015c 132C     		cmp	r4, #19
+ 375 015e 01DC     		bgt	.L69
+ 376              	.LBB7:
+ 175:Src/main.c    ****             sdBufferB[i][j] = sdBufferA[i][j];
+ 377              		.loc 1 175 0 is_stmt 1
+ 378 0160 0022     		movs	r2, #0
+ 379 0162 F8E7     		b	.L11
+ 380              	.L69:
+ 381              	.LBE7:
+ 382              	.LBE5:
+ 182:Src/main.c    ****     // sprintf(txBuffer, "Slave Address: %x \r", mpuConfigRx);
+ 383              		.loc 1 182 0
+ 384 0164 814D     		ldr	r5, .L83+52
+ 385 0166 6426     		movs	r6, #100
+ 386 0168 0296     		str	r6, [sp, #8]
+ 387 016a 0124     		movs	r4, #1
+ 388              	.LVL36:
+ 389 016c 0194     		str	r4, [sp, #4]
+ 390 016e 0DF11607 		add	r7, sp, #22
+ 391 0172 0097     		str	r7, [sp]
+ 392 0174 2346     		mov	r3, r4
+ 393 0176 7522     		movs	r2, #117
+ARM GAS  C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s 			page 16
+
+
+ 394 0178 D021     		movs	r1, #208
+ 395 017a 2846     		mov	r0, r5
+ 396 017c FFF7FEFF 		bl	HAL_I2C_Mem_Read
+ 397              	.LVL37:
+ 186:Src/main.c    ****     // sprintf(txBuffer, "FIFO config: %x \r", mpuConfigRx);
+ 398              		.loc 1 186 0
+ 399 0180 0296     		str	r6, [sp, #8]
+ 400 0182 0194     		str	r4, [sp, #4]
+ 401 0184 0097     		str	r7, [sp]
+ 402 0186 2346     		mov	r3, r4
+ 403 0188 1A22     		movs	r2, #26
+ 404 018a D021     		movs	r1, #208
+ 405 018c 2846     		mov	r0, r5
+ 406 018e FFF7FEFF 		bl	HAL_I2C_Mem_Read
+ 407              	.LVL38:
+ 190:Src/main.c    ****     HAL_I2C_Mem_Write(&hi2c1, 0xD0, 0x1B, I2C_MEMADD_SIZE_8BIT, &mpuConfigTx, 1, 100);
+ 408              		.loc 1 190 0
+ 409 0192 0DF1E008 		add	r8, sp, #224
+ 410 0196 0823     		movs	r3, #8
+ 411 0198 08F8C93D 		strb	r3, [r8, #-201]!
+ 191:Src/main.c    ****     HAL_I2C_Mem_Read(&hi2c1, 0xD0, 0x1B, I2C_MEMADD_SIZE_8BIT, &mpuConfigRx, 1, 100);
+ 412              		.loc 1 191 0
+ 413 019c 0296     		str	r6, [sp, #8]
+ 414 019e 0194     		str	r4, [sp, #4]
+ 415 01a0 CDF80080 		str	r8, [sp]
+ 416 01a4 2346     		mov	r3, r4
+ 417 01a6 1B22     		movs	r2, #27
+ 418 01a8 D021     		movs	r1, #208
+ 419 01aa 2846     		mov	r0, r5
+ 420 01ac FFF7FEFF 		bl	HAL_I2C_Mem_Write
+ 421              	.LVL39:
+ 192:Src/main.c    ****     // sprintf(txBuffer, "Gyr cfig: %x \r", mpuConfigRx);
+ 422              		.loc 1 192 0
+ 423 01b0 0296     		str	r6, [sp, #8]
+ 424 01b2 0194     		str	r4, [sp, #4]
+ 425 01b4 0097     		str	r7, [sp]
+ 426 01b6 2346     		mov	r3, r4
+ 427 01b8 1B22     		movs	r2, #27
+ 428 01ba D021     		movs	r1, #208
+ 429 01bc 2846     		mov	r0, r5
+ 430 01be FFF7FEFF 		bl	HAL_I2C_Mem_Read
+ 431              	.LVL40:
+ 196:Src/main.c    ****     HAL_I2C_Mem_Write(&hi2c1, 0xD0, 0x1C, I2C_MEMADD_SIZE_8BIT, &mpuConfigTx, 1, 100);
+ 432              		.loc 1 196 0
+ 433 01c2 1823     		movs	r3, #24
+ 434 01c4 8DF81730 		strb	r3, [sp, #23]
+ 197:Src/main.c    ****     HAL_I2C_Mem_Read(&hi2c1, 0xD0, 0x1C, I2C_MEMADD_SIZE_8BIT, &mpuConfigRx, 1, 100);
+ 435              		.loc 1 197 0
+ 436 01c8 0296     		str	r6, [sp, #8]
+ 437 01ca 0194     		str	r4, [sp, #4]
+ 438 01cc CDF80080 		str	r8, [sp]
+ 439 01d0 2346     		mov	r3, r4
+ 440 01d2 1C22     		movs	r2, #28
+ 441 01d4 D021     		movs	r1, #208
+ 442 01d6 2846     		mov	r0, r5
+ 443 01d8 FFF7FEFF 		bl	HAL_I2C_Mem_Write
+ 444              	.LVL41:
+ARM GAS  C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s 			page 17
+
+
+ 198:Src/main.c    ****     // sprintf(txBuffer, "Acc cfig: %x \r", mpuConfigRx);
+ 445              		.loc 1 198 0
+ 446 01dc 0296     		str	r6, [sp, #8]
+ 447 01de 0194     		str	r4, [sp, #4]
+ 448 01e0 0097     		str	r7, [sp]
+ 449 01e2 2346     		mov	r3, r4
+ 450 01e4 1C22     		movs	r2, #28
+ 451 01e6 D021     		movs	r1, #208
+ 452 01e8 2846     		mov	r0, r5
+ 453 01ea FFF7FEFF 		bl	HAL_I2C_Mem_Read
+ 454              	.LVL42:
+ 202:Src/main.c    ****     HAL_TIM_Base_Start_IT(&htim3);
+ 455              		.loc 1 202 0
+ 456 01ee 3322     		movs	r2, #51
+ 457 01f0 5F49     		ldr	r1, .L83+56
+ 458 01f2 6048     		ldr	r0, .L83+60
+ 459 01f4 FFF7FEFF 		bl	HAL_UART_Receive_DMA
+ 460              	.LVL43:
+ 203:Src/main.c    ****     HAL_ADCEx_Calibration_Start(&hadc1);
+ 461              		.loc 1 203 0
+ 462 01f8 5F48     		ldr	r0, .L83+64
+ 463 01fa FFF7FEFF 		bl	HAL_TIM_Base_Start_IT
+ 464              	.LVL44:
+ 204:Src/main.c    ****     HAL_ADC_Start_DMA(&hadc1, (uint32_t *) rawAdc, 7);
+ 465              		.loc 1 204 0
+ 466 01fe 5F4D     		ldr	r5, .L83+68
+ 467 0200 2846     		mov	r0, r5
+ 468 0202 FFF7FEFF 		bl	HAL_ADCEx_Calibration_Start
+ 469              	.LVL45:
+ 205:Src/main.c    **** 
+ 470              		.loc 1 205 0
+ 471 0206 0722     		movs	r2, #7
+ 472 0208 5D49     		ldr	r1, .L83+72
+ 473 020a 2846     		mov	r0, r5
+ 474 020c FFF7FEFF 		bl	HAL_ADC_Start_DMA
+ 475              	.LVL46:
+ 208:Src/main.c    ****     mpuReady = 0;
+ 476              		.loc 1 208 0
+ 477 0210 0023     		movs	r3, #0
+ 478 0212 5C4A     		ldr	r2, .L83+76
+ 479 0214 1370     		strb	r3, [r2]
+ 209:Src/main.c    ****     gpsReady = 0;
+ 480              		.loc 1 209 0
+ 481 0216 5C4A     		ldr	r2, .L83+80
+ 482 0218 1370     		strb	r3, [r2]
+ 210:Src/main.c    ****     timReady = 0;
+ 483              		.loc 1 210 0
+ 484 021a 5C4A     		ldr	r2, .L83+84
+ 485 021c 1370     		strb	r3, [r2]
+ 211:Src/main.c    ****     nBuffer = 1;
+ 486              		.loc 1 211 0
+ 487 021e 5C4A     		ldr	r2, .L83+88
+ 488 0220 1370     		strb	r3, [r2]
+ 212:Src/main.c    ****     /* USER CODE END 2 */
+ 489              		.loc 1 212 0
+ 490 0222 5C4B     		ldr	r3, .L83+92
+ 491 0224 1C70     		strb	r4, [r3]
+ARM GAS  C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s 			page 18
+
+
+ 492 0226 78E1     		b	.L12
+ 493              	.L80:
+ 220:Src/main.c    ****             if (rawGps[1] == 0x47 && rawGps[17] == 0x41) {
+ 494              		.loc 1 220 0
+ 495 0228 0122     		movs	r2, #1
+ 496 022a 4FF40041 		mov	r1, #32768
+ 497 022e 5A48     		ldr	r0, .L83+96
+ 498 0230 FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 499              	.LVL47:
+ 221:Src/main.c    ****                 // HAL_GPIO_WritePin(GPIOB, GPIO_PIN_15, GPIO_PIN_SET);
+ 500              		.loc 1 221 0
+ 501 0234 4E4B     		ldr	r3, .L83+56
+ 502 0236 5B78     		ldrb	r3, [r3, #1]	@ zero_extendqisi2
+ 503 0238 472B     		cmp	r3, #71
+ 504 023a 03D1     		bne	.L14
+ 221:Src/main.c    ****                 // HAL_GPIO_WritePin(GPIOB, GPIO_PIN_15, GPIO_PIN_SET);
+ 505              		.loc 1 221 0 is_stmt 0 discriminator 1
+ 506 023c 4C4B     		ldr	r3, .L83+56
+ 507 023e 5B7C     		ldrb	r3, [r3, #17]	@ zero_extendqisi2
+ 508 0240 412B     		cmp	r3, #65
+ 509 0242 14D0     		beq	.L70
+ 510              	.L14:
+ 304:Src/main.c    ****             }
+ 511              		.loc 1 304 0 is_stmt 1
+ 512 0244 0022     		movs	r2, #0
+ 513 0246 4FF48071 		mov	r1, #256
+ 514 024a 5448     		ldr	r0, .L83+100
+ 515 024c FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 516              	.LVL48:
+ 517              	.L54:
+ 306:Src/main.c    ****             // HAL_Delay(1);
+ 518              		.loc 1 306 0
+ 519 0250 4E4B     		ldr	r3, .L83+84
+ 520 0252 0122     		movs	r2, #1
+ 521 0254 1A70     		strb	r2, [r3]
+ 308:Src/main.c    ****             HAL_GPIO_WritePin(GPIOB, GPIO_PIN_15, GPIO_PIN_RESET);
+ 522              		.loc 1 308 0
+ 523 0256 3322     		movs	r2, #51
+ 524 0258 4549     		ldr	r1, .L83+56
+ 525 025a 4648     		ldr	r0, .L83+60
+ 526 025c FFF7FEFF 		bl	HAL_UART_Receive_DMA
+ 527              	.LVL49:
+ 309:Src/main.c    ****         }
+ 528              		.loc 1 309 0
+ 529 0260 0022     		movs	r2, #0
+ 530 0262 4FF40041 		mov	r1, #32768
+ 531 0266 4C48     		ldr	r0, .L83+96
+ 532 0268 FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 533              	.LVL50:
+ 534 026c 5AE1     		b	.L13
+ 535              	.L70:
+ 223:Src/main.c    ****                     sdBufferA[0][11] = 0x2D;				//-
+ 536              		.loc 1 223 0
+ 537 026e 494B     		ldr	r3, .L83+92
+ 538 0270 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 539 0272 012B     		cmp	r3, #1
+ 540 0274 0BD0     		beq	.L71
+ARM GAS  C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s 			page 19
+
+
+ 249:Src/main.c    ****                     sdBufferB[0][11] = 0x2D;				//-
+ 541              		.loc 1 249 0
+ 542 0276 022B     		cmp	r3, #2
+ 543 0278 58D0     		beq	.L72
+ 275:Src/main.c    ****                     sdBufferC[0][11] = 0x2D;				//-
+ 544              		.loc 1 275 0
+ 545 027a 032B     		cmp	r3, #3
+ 546 027c 00F0DB80 		beq	.L73
+ 547              	.L28:
+ 301:Src/main.c    ****                 // HAL_GPIO_WritePin(GPIOB, GPIO_PIN_15, GPIO_PIN_RESET);
+ 548              		.loc 1 301 0
+ 549 0280 0122     		movs	r2, #1
+ 550 0282 4FF48071 		mov	r1, #256
+ 551 0286 4548     		ldr	r0, .L83+100
+ 552 0288 FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 553              	.LVL51:
+ 554 028c E0E7     		b	.L54
+ 555              	.L71:
+ 224:Src/main.c    ****                     for(int j = 12; j < 22; j++) { 			//latitude
+ 556              		.loc 1 224 0
+ 557 028e 344B     		ldr	r3, .L83+40
+ 558 0290 2D22     		movs	r2, #45
+ 559 0292 DA72     		strb	r2, [r3, #11]
+ 560              	.LVL52:
+ 561              	.LBB8:
+ 225:Src/main.c    ****                         sdBufferA[0][j] = rawGps[j+7];
+ 562              		.loc 1 225 0
+ 563 0294 0C23     		movs	r3, #12
+ 564              	.LVL53:
+ 565              	.L16:
+ 225:Src/main.c    ****                         sdBufferA[0][j] = rawGps[j+7];
+ 566              		.loc 1 225 0 is_stmt 0 discriminator 1
+ 567 0296 152B     		cmp	r3, #21
+ 568 0298 06DC     		bgt	.L74
+ 226:Src/main.c    ****                     }
+ 569              		.loc 1 226 0 is_stmt 1 discriminator 3
+ 570 029a DA1D     		adds	r2, r3, #7
+ 571 029c 3449     		ldr	r1, .L83+56
+ 572 029e 895C     		ldrb	r1, [r1, r2]	@ zero_extendqisi2
+ 573 02a0 2F4A     		ldr	r2, .L83+40
+ 574 02a2 D154     		strb	r1, [r2, r3]
+ 225:Src/main.c    ****                         sdBufferA[0][j] = rawGps[j+7];
+ 575              		.loc 1 225 0 discriminator 3
+ 576 02a4 0133     		adds	r3, r3, #1
+ 577              	.LVL54:
+ 578 02a6 F6E7     		b	.L16
+ 579              	.L74:
+ 580              	.LBE8:
+ 228:Src/main.c    ****                     for(int j = 24; j < 34; j++) { 			//longitude
+ 581              		.loc 1 228 0
+ 582 02a8 2D4B     		ldr	r3, .L83+40
+ 583              	.LVL55:
+ 584 02aa 2D22     		movs	r2, #45
+ 585 02ac DA75     		strb	r2, [r3, #23]
+ 586              	.LVL56:
+ 587              	.LBB9:
+ 229:Src/main.c    ****                         sdBufferA[0][j] = rawGps[j+9];
+ARM GAS  C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s 			page 20
+
+
+ 588              		.loc 1 229 0
+ 589 02ae 1823     		movs	r3, #24
+ 590              	.LVL57:
+ 591              	.L18:
+ 229:Src/main.c    ****                         sdBufferA[0][j] = rawGps[j+9];
+ 592              		.loc 1 229 0 is_stmt 0 discriminator 1
+ 593 02b0 212B     		cmp	r3, #33
+ 594 02b2 07DC     		bgt	.L75
+ 230:Src/main.c    ****                     }
+ 595              		.loc 1 230 0 is_stmt 1 discriminator 3
+ 596 02b4 03F10902 		add	r2, r3, #9
+ 597 02b8 2D49     		ldr	r1, .L83+56
+ 598 02ba 895C     		ldrb	r1, [r1, r2]	@ zero_extendqisi2
+ 599 02bc 284A     		ldr	r2, .L83+40
+ 600 02be D154     		strb	r1, [r2, r3]
+ 229:Src/main.c    ****                         sdBufferA[0][j] = rawGps[j+9];
+ 601              		.loc 1 229 0 discriminator 3
+ 602 02c0 0133     		adds	r3, r3, #1
+ 603              	.LVL58:
+ 604 02c2 F5E7     		b	.L18
+ 605              	.L75:
+ 606              	.LBE9:
+ 607              	.LBB10:
+ 232:Src/main.c    ****                         sdBufferA[0][j] = rawGps[j+11];
+ 608              		.loc 1 232 0
+ 609 02c4 2323     		movs	r3, #35
+ 610              	.LVL59:
+ 611 02c6 06E0     		b	.L20
+ 612              	.LVL60:
+ 613              	.L21:
+ 233:Src/main.c    ****                     }
+ 614              		.loc 1 233 0 discriminator 3
+ 615 02c8 03F10B02 		add	r2, r3, #11
+ 616 02cc 2849     		ldr	r1, .L83+56
+ 617 02ce 895C     		ldrb	r1, [r1, r2]	@ zero_extendqisi2
+ 618 02d0 234A     		ldr	r2, .L83+40
+ 619 02d2 D154     		strb	r1, [r2, r3]
+ 232:Src/main.c    ****                         sdBufferA[0][j] = rawGps[j+11];
+ 620              		.loc 1 232 0 discriminator 3
+ 621 02d4 0133     		adds	r3, r3, #1
+ 622              	.LVL61:
+ 623              	.L20:
+ 232:Src/main.c    ****                         sdBufferA[0][j] = rawGps[j+11];
+ 624              		.loc 1 232 0 is_stmt 0 discriminator 1
+ 625 02d6 272B     		cmp	r3, #39
+ 626 02d8 F6DD     		ble	.L21
+ 627              	.LBE10:
+ 628              	.LBB11:
+ 236:Src/main.c    ****                         for(int j = 11; j < 41; j++) {
+ 629              		.loc 1 236 0 is_stmt 1
+ 630 02da 0120     		movs	r0, #1
+ 631 02dc 0BE0     		b	.L22
+ 632              	.LVL62:
+ 633              	.L23:
+ 634              	.LBB12:
+ 238:Src/main.c    ****                         }
+ 635              		.loc 1 238 0 discriminator 3
+ARM GAS  C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s 			page 21
+
+
+ 636 02de 204A     		ldr	r2, .L83+40
+ 637 02e0 D45C     		ldrb	r4, [r2, r3]	@ zero_extendqisi2
+ 638 02e2 C0EBC001 		rsb	r1, r0, r0, lsl #3
+ 639 02e6 01EB0111 		add	r1, r1, r1, lsl #4
+ 640 02ea 0A44     		add	r2, r2, r1
+ 641 02ec D454     		strb	r4, [r2, r3]
+ 237:Src/main.c    ****                             sdBufferA[i][j] = sdBufferA[0][j];
+ 642              		.loc 1 237 0 discriminator 3
+ 643 02ee 0133     		adds	r3, r3, #1
+ 644              	.LVL63:
+ 645              	.L24:
+ 237:Src/main.c    ****                             sdBufferA[i][j] = sdBufferA[0][j];
+ 646              		.loc 1 237 0 is_stmt 0 discriminator 1
+ 647 02f0 282B     		cmp	r3, #40
+ 648 02f2 F4DD     		ble	.L23
+ 649              	.LBE12:
+ 236:Src/main.c    ****                         for(int j = 11; j < 41; j++) {
+ 650              		.loc 1 236 0 is_stmt 1 discriminator 2
+ 651 02f4 0130     		adds	r0, r0, #1
+ 652              	.LVL64:
+ 653              	.L22:
+ 236:Src/main.c    ****                         for(int j = 11; j < 41; j++) {
+ 654              		.loc 1 236 0 is_stmt 0 discriminator 1
+ 655 02f6 1328     		cmp	r0, #19
+ 656 02f8 01DC     		bgt	.L76
+ 657              	.LBB13:
+ 237:Src/main.c    ****                             sdBufferA[i][j] = sdBufferA[0][j];
+ 658              		.loc 1 237 0 is_stmt 1
+ 659 02fa 0B23     		movs	r3, #11
+ 660 02fc F8E7     		b	.L24
+ 661              	.L76:
+ 662              	.LBE13:
+ 663              	.LBE11:
+ 664              	.LBB14:
+ 242:Src/main.c    ****                         for(int j = 11; j < 41; j++) {
+ 665              		.loc 1 242 0
+ 666 02fe 0024     		movs	r4, #0
+ 667 0300 10E0     		b	.L25
+ 668              	.LVL65:
+ 669              	.L26:
+ 670              	.LBB15:
+ 244:Src/main.c    ****                             sdBufferC[i][j] = sdBufferA[i][j];
+ 671              		.loc 1 244 0 discriminator 3
+ 672 0302 C4EBC403 		rsb	r3, r4, r4, lsl #3
+ 673 0306 03EB0313 		add	r3, r3, r3, lsl #4
+ 674 030a 1549     		ldr	r1, .L83+40
+ 675 030c 1944     		add	r1, r1, r3
+ 676 030e 885C     		ldrb	r0, [r1, r2]	@ zero_extendqisi2
+ 677 0310 1449     		ldr	r1, .L83+44
+ 678 0312 1944     		add	r1, r1, r3
+ 679 0314 8854     		strb	r0, [r1, r2]
+ 245:Src/main.c    ****                         }
+ 680              		.loc 1 245 0 discriminator 3
+ 681 0316 1449     		ldr	r1, .L83+48
+ 682 0318 0B44     		add	r3, r3, r1
+ 683 031a 9854     		strb	r0, [r3, r2]
+ 243:Src/main.c    ****                             sdBufferB[i][j] = sdBufferA[i][j];
+ARM GAS  C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s 			page 22
+
+
+ 684              		.loc 1 243 0 discriminator 3
+ 685 031c 0132     		adds	r2, r2, #1
+ 686              	.LVL66:
+ 687              	.L27:
+ 243:Src/main.c    ****                             sdBufferB[i][j] = sdBufferA[i][j];
+ 688              		.loc 1 243 0 is_stmt 0 discriminator 1
+ 689 031e 282A     		cmp	r2, #40
+ 690 0320 EFDD     		ble	.L26
+ 691              	.LBE15:
+ 242:Src/main.c    ****                         for(int j = 11; j < 41; j++) {
+ 692              		.loc 1 242 0 is_stmt 1 discriminator 2
+ 693 0322 0134     		adds	r4, r4, #1
+ 694              	.LVL67:
+ 695              	.L25:
+ 242:Src/main.c    ****                         for(int j = 11; j < 41; j++) {
+ 696              		.loc 1 242 0 is_stmt 0 discriminator 1
+ 697 0324 132C     		cmp	r4, #19
+ 698 0326 ABDC     		bgt	.L28
+ 699              	.LBB16:
+ 243:Src/main.c    ****                             sdBufferB[i][j] = sdBufferA[i][j];
+ 700              		.loc 1 243 0 is_stmt 1
+ 701 0328 0B22     		movs	r2, #11
+ 702 032a F8E7     		b	.L27
+ 703              	.LVL68:
+ 704              	.L72:
+ 705              	.LBE16:
+ 706              	.LBE14:
+ 250:Src/main.c    ****                     for(int j = 12; j < 22; j++) { 			//latitude
+ 707              		.loc 1 250 0
+ 708 032c 0D4B     		ldr	r3, .L83+44
+ 709 032e 2D22     		movs	r2, #45
+ 710 0330 DA72     		strb	r2, [r3, #11]
+ 711              	.LVL69:
+ 712              	.LBB17:
+ 251:Src/main.c    ****                         sdBufferB[0][j] = rawGps[j+7];
+ 713              		.loc 1 251 0
+ 714 0332 0C23     		movs	r3, #12
+ 715 0334 3AE0     		b	.L30
+ 716              	.L84:
+ 717 0336 00BF     		.align	2
+ 718              	.L83:
+ 719 0338 00000000 		.word	textTxBuffer
+ 720 033c 00000000 		.word	.LC0
+ 721 0340 00000000 		.word	huart1
+ 722 0344 00000000 		.word	SDPath
+ 723 0348 00000000 		.word	SDFatFs
+ 724 034c 18000000 		.word	.LC1
+ 725 0350 00000000 		.word	MyFile
+ 726 0354 00000000 		.word	res
+ 727 0358 28000000 		.word	.LC2
+ 728 035c 00000000 		.word	byteswritten
+ 729 0360 00000000 		.word	sdBufferA
+ 730 0364 00000000 		.word	sdBufferB
+ 731 0368 00000000 		.word	sdBufferC
+ 732 036c 00000000 		.word	hi2c1
+ 733 0370 00000000 		.word	rawGps
+ 734 0374 00000000 		.word	huart3
+ARM GAS  C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s 			page 23
+
+
+ 735 0378 00000000 		.word	htim3
+ 736 037c 00000000 		.word	hadc1
+ 737 0380 00000000 		.word	rawAdc
+ 738 0384 00000000 		.word	adcReady
+ 739 0388 00000000 		.word	mpuReady
+ 740 038c 00000000 		.word	gpsReady
+ 741 0390 00000000 		.word	timReady
+ 742 0394 00000000 		.word	nBuffer
+ 743 0398 000C0140 		.word	1073810432
+ 744 039c 00080140 		.word	1073809408
+ 745              	.LVL70:
+ 746              	.L31:
+ 252:Src/main.c    ****                     }
+ 747              		.loc 1 252 0 discriminator 3
+ 748 03a0 DA1D     		adds	r2, r3, #7
+ 749 03a2 8549     		ldr	r1, .L85
+ 750 03a4 895C     		ldrb	r1, [r1, r2]	@ zero_extendqisi2
+ 751 03a6 854A     		ldr	r2, .L85+4
+ 752 03a8 D154     		strb	r1, [r2, r3]
+ 251:Src/main.c    ****                         sdBufferB[0][j] = rawGps[j+7];
+ 753              		.loc 1 251 0 discriminator 3
+ 754 03aa 0133     		adds	r3, r3, #1
+ 755              	.LVL71:
+ 756              	.L30:
+ 251:Src/main.c    ****                         sdBufferB[0][j] = rawGps[j+7];
+ 757              		.loc 1 251 0 is_stmt 0 discriminator 1
+ 758 03ac 152B     		cmp	r3, #21
+ 759 03ae F7DD     		ble	.L31
+ 760              	.LBE17:
+ 254:Src/main.c    ****                     for(int j = 24; j < 34; j++) { 			//longitude
+ 761              		.loc 1 254 0 is_stmt 1
+ 762 03b0 824B     		ldr	r3, .L85+4
+ 763              	.LVL72:
+ 764 03b2 2D22     		movs	r2, #45
+ 765 03b4 DA75     		strb	r2, [r3, #23]
+ 766              	.LVL73:
+ 767              	.LBB18:
+ 255:Src/main.c    ****                         sdBufferB[0][j] = rawGps[j+9];
+ 768              		.loc 1 255 0
+ 769 03b6 1823     		movs	r3, #24
+ 770 03b8 06E0     		b	.L32
+ 771              	.LVL74:
+ 772              	.L33:
+ 256:Src/main.c    ****                     }
+ 773              		.loc 1 256 0 discriminator 3
+ 774 03ba 03F10902 		add	r2, r3, #9
+ 775 03be 7E49     		ldr	r1, .L85
+ 776 03c0 895C     		ldrb	r1, [r1, r2]	@ zero_extendqisi2
+ 777 03c2 7E4A     		ldr	r2, .L85+4
+ 778 03c4 D154     		strb	r1, [r2, r3]
+ 255:Src/main.c    ****                         sdBufferB[0][j] = rawGps[j+9];
+ 779              		.loc 1 255 0 discriminator 3
+ 780 03c6 0133     		adds	r3, r3, #1
+ 781              	.LVL75:
+ 782              	.L32:
+ 255:Src/main.c    ****                         sdBufferB[0][j] = rawGps[j+9];
+ 783              		.loc 1 255 0 is_stmt 0 discriminator 1
+ARM GAS  C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s 			page 24
+
+
+ 784 03c8 212B     		cmp	r3, #33
+ 785 03ca F6DD     		ble	.L33
+ 786              	.LBE18:
+ 787              	.LBB19:
+ 258:Src/main.c    ****                         sdBufferB[0][j] = rawGps[j+11];
+ 788              		.loc 1 258 0 is_stmt 1
+ 789 03cc 2323     		movs	r3, #35
+ 790              	.LVL76:
+ 791 03ce 06E0     		b	.L34
+ 792              	.LVL77:
+ 793              	.L35:
+ 259:Src/main.c    ****                     }
+ 794              		.loc 1 259 0 discriminator 3
+ 795 03d0 03F10B02 		add	r2, r3, #11
+ 796 03d4 7849     		ldr	r1, .L85
+ 797 03d6 895C     		ldrb	r1, [r1, r2]	@ zero_extendqisi2
+ 798 03d8 784A     		ldr	r2, .L85+4
+ 799 03da D154     		strb	r1, [r2, r3]
+ 258:Src/main.c    ****                         sdBufferB[0][j] = rawGps[j+11];
+ 800              		.loc 1 258 0 discriminator 3
+ 801 03dc 0133     		adds	r3, r3, #1
+ 802              	.LVL78:
+ 803              	.L34:
+ 258:Src/main.c    ****                         sdBufferB[0][j] = rawGps[j+11];
+ 804              		.loc 1 258 0 is_stmt 0 discriminator 1
+ 805 03de 272B     		cmp	r3, #39
+ 806 03e0 F6DD     		ble	.L35
+ 807              	.LBE19:
+ 808              	.LBB20:
+ 262:Src/main.c    ****                         for(int j = 11; j < 41; j++) {
+ 809              		.loc 1 262 0 is_stmt 1
+ 810 03e2 0120     		movs	r0, #1
+ 811 03e4 00E0     		b	.L36
+ 812              	.LVL79:
+ 813              	.L78:
+ 262:Src/main.c    ****                         for(int j = 11; j < 41; j++) {
+ 814              		.loc 1 262 0 is_stmt 0 discriminator 2
+ 815 03e6 0130     		adds	r0, r0, #1
+ 816              	.LVL80:
+ 817              	.L36:
+ 262:Src/main.c    ****                         for(int j = 11; j < 41; j++) {
+ 818              		.loc 1 262 0 discriminator 1
+ 819 03e8 1328     		cmp	r0, #19
+ 820 03ea 0CDC     		bgt	.L77
+ 821              	.LBB21:
+ 263:Src/main.c    ****                             sdBufferB[i][j] = sdBufferB[0][j];
+ 822              		.loc 1 263 0 is_stmt 1
+ 823 03ec 0B23     		movs	r3, #11
+ 824              	.L38:
+ 825              	.LVL81:
+ 263:Src/main.c    ****                             sdBufferB[i][j] = sdBufferB[0][j];
+ 826              		.loc 1 263 0 is_stmt 0 discriminator 1
+ 827 03ee 282B     		cmp	r3, #40
+ 828 03f0 F9DC     		bgt	.L78
+ 264:Src/main.c    ****                         }
+ 829              		.loc 1 264 0 is_stmt 1 discriminator 3
+ 830 03f2 724A     		ldr	r2, .L85+4
+ARM GAS  C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s 			page 25
+
+
+ 831 03f4 D45C     		ldrb	r4, [r2, r3]	@ zero_extendqisi2
+ 832 03f6 C0EBC001 		rsb	r1, r0, r0, lsl #3
+ 833 03fa 01EB0111 		add	r1, r1, r1, lsl #4
+ 834 03fe 0A44     		add	r2, r2, r1
+ 835 0400 D454     		strb	r4, [r2, r3]
+ 263:Src/main.c    ****                             sdBufferB[i][j] = sdBufferB[0][j];
+ 836              		.loc 1 263 0 discriminator 3
+ 837 0402 0133     		adds	r3, r3, #1
+ 838              	.LVL82:
+ 839 0404 F3E7     		b	.L38
+ 840              	.LVL83:
+ 841              	.L77:
+ 842              	.LBE21:
+ 843              	.LBE20:
+ 844              	.LBB22:
+ 268:Src/main.c    ****                         for(int j = 11; j < 41; j++) {
+ 845              		.loc 1 268 0
+ 846 0406 0024     		movs	r4, #0
+ 847 0408 10E0     		b	.L39
+ 848              	.LVL84:
+ 849              	.L40:
+ 850              	.LBB23:
+ 270:Src/main.c    ****                             sdBufferC[i][j] = sdBufferB[i][j];
+ 851              		.loc 1 270 0 discriminator 3
+ 852 040a C4EBC403 		rsb	r3, r4, r4, lsl #3
+ 853 040e 03EB0313 		add	r3, r3, r3, lsl #4
+ 854 0412 6A49     		ldr	r1, .L85+4
+ 855 0414 1944     		add	r1, r1, r3
+ 856 0416 885C     		ldrb	r0, [r1, r2]	@ zero_extendqisi2
+ 857 0418 6949     		ldr	r1, .L85+8
+ 858 041a 1944     		add	r1, r1, r3
+ 859 041c 8854     		strb	r0, [r1, r2]
+ 271:Src/main.c    ****                         }
+ 860              		.loc 1 271 0 discriminator 3
+ 861 041e 6949     		ldr	r1, .L85+12
+ 862 0420 0B44     		add	r3, r3, r1
+ 863 0422 9854     		strb	r0, [r3, r2]
+ 269:Src/main.c    ****                             sdBufferA[i][j] = sdBufferB[i][j];
+ 864              		.loc 1 269 0 discriminator 3
+ 865 0424 0132     		adds	r2, r2, #1
+ 866              	.LVL85:
+ 867              	.L41:
+ 269:Src/main.c    ****                             sdBufferA[i][j] = sdBufferB[i][j];
+ 868              		.loc 1 269 0 is_stmt 0 discriminator 1
+ 869 0426 282A     		cmp	r2, #40
+ 870 0428 EFDD     		ble	.L40
+ 871              	.LBE23:
+ 268:Src/main.c    ****                         for(int j = 11; j < 41; j++) {
+ 872              		.loc 1 268 0 is_stmt 1 discriminator 2
+ 873 042a 0134     		adds	r4, r4, #1
+ 874              	.LVL86:
+ 875              	.L39:
+ 268:Src/main.c    ****                         for(int j = 11; j < 41; j++) {
+ 876              		.loc 1 268 0 is_stmt 0 discriminator 1
+ 877 042c 132C     		cmp	r4, #19
+ 878 042e 3FF727AF 		bgt	.L28
+ 879              	.LBB24:
+ARM GAS  C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s 			page 26
+
+
+ 269:Src/main.c    ****                             sdBufferA[i][j] = sdBufferB[i][j];
+ 880              		.loc 1 269 0 is_stmt 1
+ 881 0432 0B22     		movs	r2, #11
+ 882 0434 F7E7     		b	.L41
+ 883              	.LVL87:
+ 884              	.L73:
+ 885              	.LBE24:
+ 886              	.LBE22:
+ 276:Src/main.c    ****                     for(int j = 12; j < 22; j++) { 			//latitude
+ 887              		.loc 1 276 0
+ 888 0436 634B     		ldr	r3, .L85+12
+ 889 0438 2D22     		movs	r2, #45
+ 890 043a DA72     		strb	r2, [r3, #11]
+ 891              	.LVL88:
+ 892              	.LBB25:
+ 277:Src/main.c    ****                         sdBufferC[0][j] = rawGps[j+7];
+ 893              		.loc 1 277 0
+ 894 043c 0C23     		movs	r3, #12
+ 895 043e 05E0     		b	.L42
+ 896              	.LVL89:
+ 897              	.L43:
+ 278:Src/main.c    ****                     }
+ 898              		.loc 1 278 0 discriminator 3
+ 899 0440 DA1D     		adds	r2, r3, #7
+ 900 0442 5D49     		ldr	r1, .L85
+ 901 0444 895C     		ldrb	r1, [r1, r2]	@ zero_extendqisi2
+ 902 0446 5F4A     		ldr	r2, .L85+12
+ 903 0448 D154     		strb	r1, [r2, r3]
+ 277:Src/main.c    ****                         sdBufferC[0][j] = rawGps[j+7];
+ 904              		.loc 1 277 0 discriminator 3
+ 905 044a 0133     		adds	r3, r3, #1
+ 906              	.LVL90:
+ 907              	.L42:
+ 277:Src/main.c    ****                         sdBufferC[0][j] = rawGps[j+7];
+ 908              		.loc 1 277 0 is_stmt 0 discriminator 1
+ 909 044c 152B     		cmp	r3, #21
+ 910 044e F7DD     		ble	.L43
+ 911              	.LBE25:
+ 280:Src/main.c    ****                     for(int j = 24; j < 34; j++) { 			//longitude
+ 912              		.loc 1 280 0 is_stmt 1
+ 913 0450 5C4B     		ldr	r3, .L85+12
+ 914              	.LVL91:
+ 915 0452 2D22     		movs	r2, #45
+ 916 0454 DA75     		strb	r2, [r3, #23]
+ 917              	.LVL92:
+ 918              	.LBB26:
+ 281:Src/main.c    ****                         sdBufferC[0][j] = rawGps[j+9];
+ 919              		.loc 1 281 0
+ 920 0456 1823     		movs	r3, #24
+ 921 0458 06E0     		b	.L44
+ 922              	.LVL93:
+ 923              	.L45:
+ 282:Src/main.c    ****                     }
+ 924              		.loc 1 282 0 discriminator 3
+ 925 045a 03F10902 		add	r2, r3, #9
+ 926 045e 5649     		ldr	r1, .L85
+ 927 0460 895C     		ldrb	r1, [r1, r2]	@ zero_extendqisi2
+ARM GAS  C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s 			page 27
+
+
+ 928 0462 584A     		ldr	r2, .L85+12
+ 929 0464 D154     		strb	r1, [r2, r3]
+ 281:Src/main.c    ****                         sdBufferC[0][j] = rawGps[j+9];
+ 930              		.loc 1 281 0 discriminator 3
+ 931 0466 0133     		adds	r3, r3, #1
+ 932              	.LVL94:
+ 933              	.L44:
+ 281:Src/main.c    ****                         sdBufferC[0][j] = rawGps[j+9];
+ 934              		.loc 1 281 0 is_stmt 0 discriminator 1
+ 935 0468 212B     		cmp	r3, #33
+ 936 046a F6DD     		ble	.L45
+ 937              	.LBE26:
+ 938              	.LBB27:
+ 284:Src/main.c    ****                         sdBufferC[0][j] = rawGps[j+11];
+ 939              		.loc 1 284 0 is_stmt 1
+ 940 046c 2323     		movs	r3, #35
+ 941              	.LVL95:
+ 942 046e 06E0     		b	.L46
+ 943              	.LVL96:
+ 944              	.L47:
+ 285:Src/main.c    ****                     }
+ 945              		.loc 1 285 0 discriminator 3
+ 946 0470 03F10B02 		add	r2, r3, #11
+ 947 0474 5049     		ldr	r1, .L85
+ 948 0476 895C     		ldrb	r1, [r1, r2]	@ zero_extendqisi2
+ 949 0478 524A     		ldr	r2, .L85+12
+ 950 047a D154     		strb	r1, [r2, r3]
+ 284:Src/main.c    ****                         sdBufferC[0][j] = rawGps[j+11];
+ 951              		.loc 1 284 0 discriminator 3
+ 952 047c 0133     		adds	r3, r3, #1
+ 953              	.LVL97:
+ 954              	.L46:
+ 284:Src/main.c    ****                         sdBufferC[0][j] = rawGps[j+11];
+ 955              		.loc 1 284 0 is_stmt 0 discriminator 1
+ 956 047e 272B     		cmp	r3, #39
+ 957 0480 F6DD     		ble	.L47
+ 958              	.LBE27:
+ 959              	.LBB28:
+ 288:Src/main.c    ****                         for(int j = 11; j < 41; j++) {
+ 960              		.loc 1 288 0 is_stmt 1
+ 961 0482 0120     		movs	r0, #1
+ 962 0484 0BE0     		b	.L48
+ 963              	.LVL98:
+ 964              	.L49:
+ 965              	.LBB29:
+ 290:Src/main.c    ****                         }
+ 966              		.loc 1 290 0 discriminator 3
+ 967 0486 4F4A     		ldr	r2, .L85+12
+ 968 0488 D45C     		ldrb	r4, [r2, r3]	@ zero_extendqisi2
+ 969 048a C0EBC001 		rsb	r1, r0, r0, lsl #3
+ 970 048e 01EB0111 		add	r1, r1, r1, lsl #4
+ 971 0492 0A44     		add	r2, r2, r1
+ 972 0494 D454     		strb	r4, [r2, r3]
+ 289:Src/main.c    ****                             sdBufferC[i][j] = sdBufferC[0][j];
+ 973              		.loc 1 289 0 discriminator 3
+ 974 0496 0133     		adds	r3, r3, #1
+ 975              	.LVL99:
+ARM GAS  C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s 			page 28
+
+
+ 976              	.L50:
+ 289:Src/main.c    ****                             sdBufferC[i][j] = sdBufferC[0][j];
+ 977              		.loc 1 289 0 is_stmt 0 discriminator 1
+ 978 0498 282B     		cmp	r3, #40
+ 979 049a F4DD     		ble	.L49
+ 980              	.LBE29:
+ 288:Src/main.c    ****                         for(int j = 11; j < 41; j++) {
+ 981              		.loc 1 288 0 is_stmt 1 discriminator 2
+ 982 049c 0130     		adds	r0, r0, #1
+ 983              	.LVL100:
+ 984              	.L48:
+ 288:Src/main.c    ****                         for(int j = 11; j < 41; j++) {
+ 985              		.loc 1 288 0 is_stmt 0 discriminator 1
+ 986 049e 1328     		cmp	r0, #19
+ 987 04a0 01DC     		bgt	.L79
+ 988              	.LBB30:
+ 289:Src/main.c    ****                             sdBufferC[i][j] = sdBufferC[0][j];
+ 989              		.loc 1 289 0 is_stmt 1
+ 990 04a2 0B23     		movs	r3, #11
+ 991 04a4 F8E7     		b	.L50
+ 992              	.L79:
+ 993              	.LBE30:
+ 994              	.LBE28:
+ 995              	.LBB31:
+ 294:Src/main.c    ****                         for(int j = 11; j < 41; j++) {
+ 996              		.loc 1 294 0
+ 997 04a6 0024     		movs	r4, #0
+ 998 04a8 10E0     		b	.L51
+ 999              	.LVL101:
+ 1000              	.L52:
+ 1001              	.LBB32:
+ 296:Src/main.c    ****                             sdBufferB[i][j] = sdBufferC[i][j];
+ 1002              		.loc 1 296 0 discriminator 3
+ 1003 04aa C4EBC403 		rsb	r3, r4, r4, lsl #3
+ 1004 04ae 03EB0313 		add	r3, r3, r3, lsl #4
+ 1005 04b2 4449     		ldr	r1, .L85+12
+ 1006 04b4 1944     		add	r1, r1, r3
+ 1007 04b6 885C     		ldrb	r0, [r1, r2]	@ zero_extendqisi2
+ 1008 04b8 4149     		ldr	r1, .L85+8
+ 1009 04ba 1944     		add	r1, r1, r3
+ 1010 04bc 8854     		strb	r0, [r1, r2]
+ 297:Src/main.c    ****                         }
+ 1011              		.loc 1 297 0 discriminator 3
+ 1012 04be 3F49     		ldr	r1, .L85+4
+ 1013 04c0 0B44     		add	r3, r3, r1
+ 1014 04c2 9854     		strb	r0, [r3, r2]
+ 295:Src/main.c    ****                             sdBufferA[i][j] = sdBufferC[i][j];
+ 1015              		.loc 1 295 0 discriminator 3
+ 1016 04c4 0132     		adds	r2, r2, #1
+ 1017              	.LVL102:
+ 1018              	.L53:
+ 295:Src/main.c    ****                             sdBufferA[i][j] = sdBufferC[i][j];
+ 1019              		.loc 1 295 0 is_stmt 0 discriminator 1
+ 1020 04c6 282A     		cmp	r2, #40
+ 1021 04c8 EFDD     		ble	.L52
+ 1022              	.LBE32:
+ 294:Src/main.c    ****                         for(int j = 11; j < 41; j++) {
+ARM GAS  C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s 			page 29
+
+
+ 1023              		.loc 1 294 0 is_stmt 1 discriminator 2
+ 1024 04ca 0134     		adds	r4, r4, #1
+ 1025              	.LVL103:
+ 1026              	.L51:
+ 294:Src/main.c    ****                         for(int j = 11; j < 41; j++) {
+ 1027              		.loc 1 294 0 is_stmt 0 discriminator 1
+ 1028 04cc 132C     		cmp	r4, #19
+ 1029 04ce 3FF7D7AE 		bgt	.L28
+ 1030              	.LBB33:
+ 295:Src/main.c    ****                             sdBufferA[i][j] = sdBufferC[i][j];
+ 1031              		.loc 1 295 0 is_stmt 1
+ 1032 04d2 0B22     		movs	r2, #11
+ 1033 04d4 F7E7     		b	.L53
+ 1034              	.LVL104:
+ 1035              	.L81:
+ 1036              	.LBE33:
+ 1037              	.LBE31:
+ 319:Src/main.c    ****                     adcReady = 0;
+ 1038              		.loc 1 319 0
+ 1039 04d6 3C4B     		ldr	r3, .L85+16
+ 1040 04d8 0222     		movs	r2, #2
+ 1041 04da 1A70     		strb	r2, [r3]
+ 320:Src/main.c    ****                     mpuReady = 0;
+ 1042              		.loc 1 320 0
+ 1043 04dc 0023     		movs	r3, #0
+ 1044 04de 3B4A     		ldr	r2, .L85+20
+ 1045 04e0 1370     		strb	r3, [r2]
+ 321:Src/main.c    ****                     gpsReady = 0;
+ 1046              		.loc 1 321 0
+ 1047 04e2 3B4A     		ldr	r2, .L85+24
+ 1048 04e4 1370     		strb	r3, [r2]
+ 322:Src/main.c    ****                     timReady = 0;
+ 1049              		.loc 1 322 0
+ 1050 04e6 3B4A     		ldr	r2, .L85+28
+ 1051 04e8 1370     		strb	r3, [r2]
+ 323:Src/main.c    ****                     f_write(&MyFile, sdBufferA, sizeof(sdBufferA), (void *)&byteswritten);
+ 1052              		.loc 1 323 0
+ 1053 04ea 3B4A     		ldr	r2, .L85+32
+ 1054 04ec 1370     		strb	r3, [r2]
+ 324:Src/main.c    ****                     f_sync(&MyFile);
+ 1055              		.loc 1 324 0
+ 1056 04ee 3B4C     		ldr	r4, .L85+36
+ 1057 04f0 3B4B     		ldr	r3, .L85+40
+ 1058 04f2 40F64C12 		movw	r2, #2380
+ 1059 04f6 3249     		ldr	r1, .L85+8
+ 1060 04f8 2046     		mov	r0, r4
+ 1061 04fa FFF7FEFF 		bl	f_write
+ 1062              	.LVL105:
+ 325:Src/main.c    ****                     // HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
+ 1063              		.loc 1 325 0
+ 1064 04fe 2046     		mov	r0, r4
+ 1065 0500 FFF7FEFF 		bl	f_sync
+ 1066              	.LVL106:
+ 1067              	.L57:
+ 350:Src/main.c    ****                 // HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
+ 1068              		.loc 1 350 0
+ 1069 0504 4FF40051 		mov	r1, #8192
+ARM GAS  C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s 			page 30
+
+
+ 1070 0508 3648     		ldr	r0, .L85+44
+ 1071 050a FFF7FEFF 		bl	HAL_GPIO_TogglePin
+ 1072              	.LVL107:
+ 352:Src/main.c    ****             }
+ 1073              		.loc 1 352 0
+ 1074 050e 0022     		movs	r2, #0
+ 1075 0510 4FF40041 		mov	r1, #32768
+ 1076 0514 3448     		ldr	r0, .L85+48
+ 1077 0516 FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 1078              	.LVL108:
+ 1079              	.L12:
+ 219:Src/main.c    ****             HAL_GPIO_WritePin(GPIOB, GPIO_PIN_15, GPIO_PIN_SET);
+ 1080              		.loc 1 219 0
+ 1081 051a 2E4B     		ldr	r3, .L85+28
+ 1082 051c 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1083 051e 002B     		cmp	r3, #0
+ 1084 0520 3FF482AE 		beq	.L80
+ 1085              	.L13:
+ 314:Src/main.c    ****             if (adcReady == 1) {
+ 1086              		.loc 1 314 0
+ 1087 0524 2A4B     		ldr	r3, .L85+24
+ 1088 0526 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1089 0528 012B     		cmp	r3, #1
+ 1090 052a F6D1     		bne	.L12
+ 314:Src/main.c    ****             if (adcReady == 1) {
+ 1091              		.loc 1 314 0 is_stmt 0 discriminator 1
+ 1092 052c 2A4B     		ldr	r3, .L85+32
+ 1093 052e 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1094 0530 012B     		cmp	r3, #1
+ 1095 0532 F2D1     		bne	.L12
+ 315:Src/main.c    ****                 HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, GPIO_PIN_SET);
+ 1096              		.loc 1 315 0 is_stmt 1
+ 1097 0534 254B     		ldr	r3, .L85+20
+ 1098 0536 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1099 0538 012B     		cmp	r3, #1
+ 1100 053a EED1     		bne	.L12
+ 316:Src/main.c    ****                 if(nBuffer == 1) {
+ 1101              		.loc 1 316 0
+ 1102 053c 0122     		movs	r2, #1
+ 1103 053e 4FF40041 		mov	r1, #32768
+ 1104 0542 2948     		ldr	r0, .L85+48
+ 1105 0544 FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 1106              	.LVL109:
+ 317:Src/main.c    ****                     // HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
+ 1107              		.loc 1 317 0
+ 1108 0548 1F4B     		ldr	r3, .L85+16
+ 1109 054a 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1110 054c 012B     		cmp	r3, #1
+ 1111 054e C2D0     		beq	.L81
+ 328:Src/main.c    ****                     // HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
+ 1112              		.loc 1 328 0
+ 1113 0550 022B     		cmp	r3, #2
+ 1114 0552 19D0     		beq	.L82
+ 339:Src/main.c    ****                     // HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
+ 1115              		.loc 1 339 0
+ 1116 0554 032B     		cmp	r3, #3
+ 1117 0556 D5D1     		bne	.L57
+ARM GAS  C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s 			page 31
+
+
+ 341:Src/main.c    ****                     adcReady = 0;
+ 1118              		.loc 1 341 0
+ 1119 0558 1B4B     		ldr	r3, .L85+16
+ 1120 055a 0122     		movs	r2, #1
+ 1121 055c 1A70     		strb	r2, [r3]
+ 342:Src/main.c    ****                     mpuReady = 0;
+ 1122              		.loc 1 342 0
+ 1123 055e 0023     		movs	r3, #0
+ 1124 0560 1A4A     		ldr	r2, .L85+20
+ 1125 0562 1370     		strb	r3, [r2]
+ 343:Src/main.c    ****                     gpsReady = 0;
+ 1126              		.loc 1 343 0
+ 1127 0564 1A4A     		ldr	r2, .L85+24
+ 1128 0566 1370     		strb	r3, [r2]
+ 344:Src/main.c    ****                     timReady = 0;
+ 1129              		.loc 1 344 0
+ 1130 0568 1A4A     		ldr	r2, .L85+28
+ 1131 056a 1370     		strb	r3, [r2]
+ 345:Src/main.c    ****                     f_write(&MyFile, sdBufferC, sizeof(sdBufferC), (void *)&byteswritten);
+ 1132              		.loc 1 345 0
+ 1133 056c 1A4A     		ldr	r2, .L85+32
+ 1134 056e 1370     		strb	r3, [r2]
+ 346:Src/main.c    ****                     f_sync(&MyFile);
+ 1135              		.loc 1 346 0
+ 1136 0570 1A4C     		ldr	r4, .L85+36
+ 1137 0572 1B4B     		ldr	r3, .L85+40
+ 1138 0574 40F64C12 		movw	r2, #2380
+ 1139 0578 1249     		ldr	r1, .L85+12
+ 1140 057a 2046     		mov	r0, r4
+ 1141 057c FFF7FEFF 		bl	f_write
+ 1142              	.LVL110:
+ 347:Src/main.c    ****                     // HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
+ 1143              		.loc 1 347 0
+ 1144 0580 2046     		mov	r0, r4
+ 1145 0582 FFF7FEFF 		bl	f_sync
+ 1146              	.LVL111:
+ 1147 0586 BDE7     		b	.L57
+ 1148              	.L82:
+ 330:Src/main.c    ****                     adcReady = 0;
+ 1149              		.loc 1 330 0
+ 1150 0588 0F4B     		ldr	r3, .L85+16
+ 1151 058a 0322     		movs	r2, #3
+ 1152 058c 1A70     		strb	r2, [r3]
+ 331:Src/main.c    ****                     mpuReady = 0;
+ 1153              		.loc 1 331 0
+ 1154 058e 0023     		movs	r3, #0
+ 1155 0590 0E4A     		ldr	r2, .L85+20
+ 1156 0592 1370     		strb	r3, [r2]
+ 332:Src/main.c    ****                     gpsReady = 0;
+ 1157              		.loc 1 332 0
+ 1158 0594 0E4A     		ldr	r2, .L85+24
+ 1159 0596 1370     		strb	r3, [r2]
+ 333:Src/main.c    ****                     timReady = 0;
+ 1160              		.loc 1 333 0
+ 1161 0598 0E4A     		ldr	r2, .L85+28
+ 1162 059a 1370     		strb	r3, [r2]
+ 334:Src/main.c    ****                     f_write(&MyFile, sdBufferB, sizeof(sdBufferB), (void *)&byteswritten);
+ARM GAS  C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s 			page 32
+
+
+ 1163              		.loc 1 334 0
+ 1164 059c 0E4A     		ldr	r2, .L85+32
+ 1165 059e 1370     		strb	r3, [r2]
+ 335:Src/main.c    ****                     f_sync(&MyFile);
+ 1166              		.loc 1 335 0
+ 1167 05a0 0E4C     		ldr	r4, .L85+36
+ 1168 05a2 0F4B     		ldr	r3, .L85+40
+ 1169 05a4 40F64C12 		movw	r2, #2380
+ 1170 05a8 0449     		ldr	r1, .L85+4
+ 1171 05aa 2046     		mov	r0, r4
+ 1172 05ac FFF7FEFF 		bl	f_write
+ 1173              	.LVL112:
+ 336:Src/main.c    ****                     // HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
+ 1174              		.loc 1 336 0
+ 1175 05b0 2046     		mov	r0, r4
+ 1176 05b2 FFF7FEFF 		bl	f_sync
+ 1177              	.LVL113:
+ 1178 05b6 A5E7     		b	.L57
+ 1179              	.L86:
+ 1180              		.align	2
+ 1181              	.L85:
+ 1182 05b8 00000000 		.word	rawGps
+ 1183 05bc 00000000 		.word	sdBufferB
+ 1184 05c0 00000000 		.word	sdBufferA
+ 1185 05c4 00000000 		.word	sdBufferC
+ 1186 05c8 00000000 		.word	nBuffer
+ 1187 05cc 00000000 		.word	adcReady
+ 1188 05d0 00000000 		.word	mpuReady
+ 1189 05d4 00000000 		.word	gpsReady
+ 1190 05d8 00000000 		.word	timReady
+ 1191 05dc 00000000 		.word	MyFile
+ 1192 05e0 00000000 		.word	byteswritten
+ 1193 05e4 00100140 		.word	1073811456
+ 1194 05e8 00080140 		.word	1073809408
+ 1195              		.cfi_endproc
+ 1196              	.LFE66:
+ 1198              		.section	.text.HAL_TIM_PeriodElapsedCallback,"ax",%progbits
+ 1199              		.align	1
+ 1200              		.global	HAL_TIM_PeriodElapsedCallback
+ 1201              		.syntax unified
+ 1202              		.thumb
+ 1203              		.thumb_func
+ 1204              		.fpu softvfp
+ 1206              	HAL_TIM_PeriodElapsedCallback:
+ 1207              	.LFB68:
+ 407:Src/main.c    **** 
+ 408:Src/main.c    **** /* USER CODE BEGIN 4 */
+ 409:Src/main.c    **** void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+ 410:Src/main.c    **** {
+ 1208              		.loc 1 410 0
+ 1209              		.cfi_startproc
+ 1210              		@ args = 0, pretend = 0, frame = 0
+ 1211              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1212              		@ link register save eliminated.
+ 1213              	.LVL114:
+ 411:Src/main.c    ****     // HAL_GPIO_WritePin(GPIOB, GPIO_PIN_13, GPIO_PIN_SET);
+ 412:Src/main.c    **** }
+ARM GAS  C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s 			page 33
+
+
+ 1214              		.loc 1 412 0
+ 1215 0000 7047     		bx	lr
+ 1216              		.cfi_endproc
+ 1217              	.LFE68:
+ 1219              		.section	.text.HAL_I2C_MemRxCpltCallback,"ax",%progbits
+ 1220              		.align	1
+ 1221              		.global	HAL_I2C_MemRxCpltCallback
+ 1222              		.syntax unified
+ 1223              		.thumb
+ 1224              		.thumb_func
+ 1225              		.fpu softvfp
+ 1227              	HAL_I2C_MemRxCpltCallback:
+ 1228              	.LFB69:
+ 413:Src/main.c    **** 
+ 414:Src/main.c    **** void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c)
+ 415:Src/main.c    **** {
+ 1229              		.loc 1 415 0
+ 1230              		.cfi_startproc
+ 1231              		@ args = 0, pretend = 0, frame = 0
+ 1232              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1233              	.LVL115:
+ 1234 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+ 1235              	.LCFI5:
+ 1236              		.cfi_def_cfa_offset 20
+ 1237              		.cfi_offset 4, -20
+ 1238              		.cfi_offset 5, -16
+ 1239              		.cfi_offset 6, -12
+ 1240              		.cfi_offset 7, -8
+ 1241              		.cfi_offset 14, -4
+ 1242 0002 87B0     		sub	sp, sp, #28
+ 1243              	.LCFI6:
+ 1244              		.cfi_def_cfa_offset 48
+ 416:Src/main.c    ****     // HAL_GPIO_WritePin(GPIOB, GPIO_PIN_13, GPIO_PIN_SET);
+ 417:Src/main.c    ****     // HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, GPIO_PIN_SET);
+ 418:Src/main.c    **** 
+ 419:Src/main.c    ****     static uint32_t seconds, millis;
+ 420:Src/main.c    **** 
+ 421:Src/main.c    ****     millis = millis + 5;
+ 1245              		.loc 1 421 0
+ 1246 0004 A04A     		ldr	r2, .L146
+ 1247 0006 1368     		ldr	r3, [r2]
+ 1248 0008 0533     		adds	r3, r3, #5
+ 1249 000a 1360     		str	r3, [r2]
+ 422:Src/main.c    **** 
+ 423:Src/main.c    ****     if(millis == 1000) {
+ 1250              		.loc 1 423 0
+ 1251 000c B3F57A7F 		cmp	r3, #1000
+ 1252 0010 14D0     		beq	.L136
+ 1253              	.L89:
+ 424:Src/main.c    ****         millis =0;
+ 425:Src/main.c    ****         seconds++;
+ 426:Src/main.c    ****     }
+ 427:Src/main.c    **** 
+ 428:Src/main.c    ****     sprintf(timeBuffer,"%06d.%03dA", seconds, millis);
+ 1254              		.loc 1 428 0
+ 1255 0012 9D4B     		ldr	r3, .L146
+ 1256 0014 1B68     		ldr	r3, [r3]
+ARM GAS  C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s 			page 34
+
+
+ 1257 0016 9D4A     		ldr	r2, .L146+4
+ 1258 0018 1268     		ldr	r2, [r2]
+ 1259 001a 9D49     		ldr	r1, .L146+8
+ 1260 001c 9D48     		ldr	r0, .L146+12
+ 1261              	.LVL116:
+ 1262 001e FFF7FEFF 		bl	sprintf
+ 1263              	.LVL117:
+ 429:Src/main.c    **** 
+ 430:Src/main.c    ****     static uint8_t iTim = 0;
+ 431:Src/main.c    **** 
+ 432:Src/main.c    ****     if(timReady ==0) {
+ 1264              		.loc 1 432 0
+ 1265 0022 9D4B     		ldr	r3, .L146+16
+ 1266 0024 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1267 0026 33BB     		cbnz	r3, .L90
+ 433:Src/main.c    ****         if(nBuffer ==1) {
+ 1268              		.loc 1 433 0
+ 1269 0028 9C4B     		ldr	r3, .L146+20
+ 1270 002a 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1271 002c 012B     		cmp	r3, #1
+ 1272 002e 54D0     		beq	.L137
+ 434:Src/main.c    ****             for (int i = 0; i < 11; i++) {
+ 435:Src/main.c    ****                 sdBufferA[iTim][i] = timeBuffer[i];
+ 436:Src/main.c    ****             }
+ 437:Src/main.c    ****         } else if(nBuffer ==2) {
+ 1273              		.loc 1 437 0
+ 1274 0030 022B     		cmp	r3, #2
+ 1275 0032 63D0     		beq	.L138
+ 438:Src/main.c    ****             for (int i = 0; i < 11; i++) {
+ 439:Src/main.c    ****                 sdBufferB[iTim][i] = timeBuffer[i];
+ 440:Src/main.c    ****             }
+ 441:Src/main.c    ****         }
+ 442:Src/main.c    ****         else if(nBuffer ==3) {
+ 1276              		.loc 1 442 0
+ 1277 0034 032B     		cmp	r3, #3
+ 1278 0036 17D1     		bne	.L94
+ 1279              	.LBB34:
+ 443:Src/main.c    ****             for (int i = 0; i < 11; i++) {
+ 1280              		.loc 1 443 0
+ 1281 0038 0022     		movs	r2, #0
+ 1282 003a 6DE0     		b	.L98
+ 1283              	.LVL118:
+ 1284              	.L136:
+ 1285              	.LBE34:
+ 424:Src/main.c    ****         seconds++;
+ 1286              		.loc 1 424 0
+ 1287 003c 1346     		mov	r3, r2
+ 1288 003e 0022     		movs	r2, #0
+ 1289 0040 1A60     		str	r2, [r3]
+ 425:Src/main.c    ****     }
+ 1290              		.loc 1 425 0
+ 1291 0042 924A     		ldr	r2, .L146+4
+ 1292 0044 1368     		ldr	r3, [r2]
+ 1293 0046 0133     		adds	r3, r3, #1
+ 1294 0048 1360     		str	r3, [r2]
+ 1295 004a E2E7     		b	.L89
+ 1296              	.LVL119:
+ARM GAS  C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s 			page 35
+
+
+ 1297              	.L93:
+ 1298              	.LBB35:
+ 435:Src/main.c    ****             }
+ 1299              		.loc 1 435 0 discriminator 3
+ 1300 004c 944B     		ldr	r3, .L146+24
+ 1301 004e 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1302 0050 9049     		ldr	r1, .L146+12
+ 1303 0052 885C     		ldrb	r0, [r1, r2]	@ zero_extendqisi2
+ 1304 0054 C3EBC303 		rsb	r3, r3, r3, lsl #3
+ 1305 0058 03EB0313 		add	r3, r3, r3, lsl #4
+ 1306 005c 9149     		ldr	r1, .L146+28
+ 1307 005e 0B44     		add	r3, r3, r1
+ 1308 0060 9854     		strb	r0, [r3, r2]
+ 434:Src/main.c    ****                 sdBufferA[iTim][i] = timeBuffer[i];
+ 1309              		.loc 1 434 0 discriminator 3
+ 1310 0062 0132     		adds	r2, r2, #1
+ 1311              	.LVL120:
+ 1312              	.L91:
+ 434:Src/main.c    ****                 sdBufferA[iTim][i] = timeBuffer[i];
+ 1313              		.loc 1 434 0 is_stmt 0 discriminator 1
+ 1314 0064 0A2A     		cmp	r2, #10
+ 1315 0066 F1DD     		ble	.L93
+ 1316              	.LVL121:
+ 1317              	.L94:
+ 1318              	.LBE35:
+ 444:Src/main.c    ****                 sdBufferC[iTim][i] = timeBuffer[i];
+ 445:Src/main.c    ****             }
+ 446:Src/main.c    ****         }
+ 447:Src/main.c    **** 
+ 448:Src/main.c    ****         iTim++;
+ 1319              		.loc 1 448 0 is_stmt 1
+ 1320 0068 8D4A     		ldr	r2, .L146+24
+ 1321 006a 1378     		ldrb	r3, [r2]	@ zero_extendqisi2
+ 1322 006c 0133     		adds	r3, r3, #1
+ 1323 006e DBB2     		uxtb	r3, r3
+ 1324 0070 1370     		strb	r3, [r2]
+ 449:Src/main.c    ****         if (iTim == 20) {
+ 1325              		.loc 1 449 0
+ 1326 0072 142B     		cmp	r3, #20
+ 1327 0074 53D0     		beq	.L139
+ 1328              	.L90:
+ 450:Src/main.c    ****             timReady = 1;
+ 451:Src/main.c    ****             iTim = 0;
+ 452:Src/main.c    ****         }
+ 453:Src/main.c    ****     }
+ 454:Src/main.c    **** 
+ 455:Src/main.c    ****     // HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, GPIO_PIN_RESET);
+ 456:Src/main.c    ****     // HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, GPIO_PIN_SET);
+ 457:Src/main.c    **** 
+ 458:Src/main.c    ****     uint32_t adc1 = rawAdc[0];
+ 1329              		.loc 1 458 0
+ 1330 0076 8C49     		ldr	r1, .L146+32
+ 1331 0078 0A88     		ldrh	r2, [r1]
+ 1332              	.LVL122:
+ 459:Src/main.c    ****     uint32_t adc2 = rawAdc[1];
+ 1333              		.loc 1 459 0
+ 1334 007a 4B88     		ldrh	r3, [r1, #2]
+ARM GAS  C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s 			page 36
+
+
+ 1335              	.LVL123:
+ 460:Src/main.c    ****     uint32_t adc3 = rawAdc[2];
+ 1336              		.loc 1 460 0
+ 1337 007c 8888     		ldrh	r0, [r1, #4]
+ 1338              	.LVL124:
+ 461:Src/main.c    ****     uint32_t adc4 = rawAdc[3];
+ 1339              		.loc 1 461 0
+ 1340 007e CC88     		ldrh	r4, [r1, #6]
+ 1341              	.LVL125:
+ 462:Src/main.c    ****     uint32_t adc5 = rawAdc[4];
+ 1342              		.loc 1 462 0
+ 1343 0080 0D89     		ldrh	r5, [r1, #8]
+ 1344              	.LVL126:
+ 463:Src/main.c    ****     uint32_t adc6 = rawAdc[5];
+ 1345              		.loc 1 463 0
+ 1346 0082 4E89     		ldrh	r6, [r1, #10]
+ 1347              	.LVL127:
+ 464:Src/main.c    ****     uint32_t adc7 = rawAdc[6];
+ 1348              		.loc 1 464 0
+ 1349 0084 8F89     		ldrh	r7, [r1, #12]
+ 1350              	.LVL128:
+ 465:Src/main.c    **** 
+ 466:Src/main.c    ****     static uint8_t iAdc = 0;
+ 467:Src/main.c    **** 
+ 468:Src/main.c    ****     if(adcReady == 0) {
+ 1351              		.loc 1 468 0
+ 1352 0086 8949     		ldr	r1, .L146+36
+ 1353 0088 0978     		ldrb	r1, [r1]	@ zero_extendqisi2
+ 1354 008a 0029     		cmp	r1, #0
+ 1355 008c 4ED0     		beq	.L140
+ 1356              	.LVL129:
+ 1357              	.L100:
+ 469:Src/main.c    ****         sprintf(adcBuffer, "%04hdA%04hdA%04hdA%04hdA%04hdA%04hdA%04hd", adc1, adc2, adc3, adc4, adc
+ 470:Src/main.c    **** 
+ 471:Src/main.c    ****         if(nBuffer == 1) {
+ 472:Src/main.c    ****             for (int i = 0; i < 34; i++) {
+ 473:Src/main.c    ****                 sdBufferA[iAdc][i+83] = adcBuffer[i];
+ 474:Src/main.c    ****             }
+ 475:Src/main.c    ****         } else if(nBuffer == 2) {
+ 476:Src/main.c    ****             for (int i = 0; i < 34; i++) {
+ 477:Src/main.c    ****                 sdBufferB[iAdc][i+83] = adcBuffer[i];
+ 478:Src/main.c    ****             }
+ 479:Src/main.c    ****         }
+ 480:Src/main.c    ****         else if(nBuffer == 3) {
+ 481:Src/main.c    ****             for (int i = 0; i < 34; i++) {
+ 482:Src/main.c    ****                 sdBufferC[iAdc][i+83] = adcBuffer[i];
+ 483:Src/main.c    ****             }
+ 484:Src/main.c    ****         }
+ 485:Src/main.c    **** 
+ 486:Src/main.c    ****         iAdc++;
+ 487:Src/main.c    ****         if (iAdc == 20) {
+ 488:Src/main.c    ****             adcReady = 1;
+ 489:Src/main.c    ****             iAdc = 0;
+ 490:Src/main.c    ****         }
+ 491:Src/main.c    ****     }
+ 492:Src/main.c    **** 
+ 493:Src/main.c    ****     // HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, GPIO_PIN_RESET);
+ARM GAS  C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s 			page 37
+
+
+ 494:Src/main.c    ****     // HAL_GPIO_WritePin(GPIOB, GPIO_PIN_13, GPIO_PIN_SET);
+ 495:Src/main.c    **** 
+ 496:Src/main.c    ****     uint32_t xAcc = (rawMpu[0] << 8) | (0x00F0 & rawMpu[1]);
+ 1358              		.loc 1 496 0
+ 1359 008e 8849     		ldr	r1, .L146+40
+ 1360 0090 0B78     		ldrb	r3, [r1]	@ zero_extendqisi2
+ 1361 0092 4A78     		ldrb	r2, [r1, #1]	@ zero_extendqisi2
+ 1362 0094 02F0F002 		and	r2, r2, #240
+ 1363 0098 42EA0322 		orr	r2, r2, r3, lsl #8
+ 1364              	.LVL130:
+ 497:Src/main.c    ****     uint32_t yAcc = (rawMpu[2] << 8) | (0x00F0 & rawMpu[3]);
+ 1365              		.loc 1 497 0
+ 1366 009c 8878     		ldrb	r0, [r1, #2]	@ zero_extendqisi2
+ 1367 009e CB78     		ldrb	r3, [r1, #3]	@ zero_extendqisi2
+ 1368 00a0 03F0F003 		and	r3, r3, #240
+ 1369 00a4 43EA0023 		orr	r3, r3, r0, lsl #8
+ 1370              	.LVL131:
+ 498:Src/main.c    ****     uint32_t zAcc = (rawMpu[4] << 8) | (0x00F0 & rawMpu[5]);
+ 1371              		.loc 1 498 0
+ 1372 00a8 0C79     		ldrb	r4, [r1, #4]	@ zero_extendqisi2
+ 1373 00aa 4879     		ldrb	r0, [r1, #5]	@ zero_extendqisi2
+ 1374 00ac 00F0F000 		and	r0, r0, #240
+ 1375 00b0 40EA0420 		orr	r0, r0, r4, lsl #8
+ 1376              	.LVL132:
+ 499:Src/main.c    ****     uint32_t xGyr = (rawMpu[8] << 8) | (0x00FF & rawMpu[9]);
+ 1377              		.loc 1 499 0
+ 1378 00b4 0D7A     		ldrb	r5, [r1, #8]	@ zero_extendqisi2
+ 1379              	.LVL133:
+ 1380 00b6 4C7A     		ldrb	r4, [r1, #9]	@ zero_extendqisi2
+ 1381 00b8 44EA0524 		orr	r4, r4, r5, lsl #8
+ 1382              	.LVL134:
+ 500:Src/main.c    ****     uint32_t yGyr = (rawMpu[10] << 8) | (0x00FF & rawMpu[11]);
+ 1383              		.loc 1 500 0
+ 1384 00bc 8E7A     		ldrb	r6, [r1, #10]	@ zero_extendqisi2
+ 1385              	.LVL135:
+ 1386 00be CD7A     		ldrb	r5, [r1, #11]	@ zero_extendqisi2
+ 1387 00c0 45EA0625 		orr	r5, r5, r6, lsl #8
+ 1388              	.LVL136:
+ 501:Src/main.c    ****     uint32_t zGyr = (rawMpu[12] << 8) | (0x00FF & rawMpu[13]);
+ 1389              		.loc 1 501 0
+ 1390 00c4 0E7B     		ldrb	r6, [r1, #12]	@ zero_extendqisi2
+ 1391 00c6 497B     		ldrb	r1, [r1, #13]	@ zero_extendqisi2
+ 1392 00c8 41EA0621 		orr	r1, r1, r6, lsl #8
+ 1393              	.LVL137:
+ 502:Src/main.c    **** 
+ 503:Src/main.c    ****     static uint8_t iMpu = 0;
+ 504:Src/main.c    **** 
+ 505:Src/main.c    ****     if(mpuReady == 0) {
+ 1394              		.loc 1 505 0
+ 1395 00cc 794E     		ldr	r6, .L146+44
+ 1396 00ce 3678     		ldrb	r6, [r6]	@ zero_extendqisi2
+ 1397 00d0 002E     		cmp	r6, #0
+ 1398 00d2 00F08180 		beq	.L141
+ 1399              	.LVL138:
+ 1400              	.L88:
+ 506:Src/main.c    ****         sprintf(mpuBuffer, "%06hdA%06hdA%06hdA%06hdA%06hdA%06hd", xAcc, yAcc, zAcc, xGyr, yGyr, zGy
+ 507:Src/main.c    **** 
+ARM GAS  C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s 			page 38
+
+
+ 508:Src/main.c    ****         if(nBuffer == 1) {
+ 509:Src/main.c    ****             for (int i = 0; i < 41; i++) {
+ 510:Src/main.c    ****                 sdBufferA[iMpu][i+41] = mpuBuffer[i];
+ 511:Src/main.c    ****             }
+ 512:Src/main.c    ****         } else if(nBuffer == 2) {
+ 513:Src/main.c    ****             for (int i = 0; i < 41; i++) {
+ 514:Src/main.c    ****                 sdBufferB[iMpu][i+41] = mpuBuffer[i];
+ 515:Src/main.c    ****             }
+ 516:Src/main.c    ****         }
+ 517:Src/main.c    ****         else if(nBuffer == 3) {
+ 518:Src/main.c    ****             for (int i = 0; i < 41; i++) {
+ 519:Src/main.c    ****                 sdBufferC[iMpu][i+41] = mpuBuffer[i];
+ 520:Src/main.c    ****             }
+ 521:Src/main.c    ****         }
+ 522:Src/main.c    **** 
+ 523:Src/main.c    ****         iMpu++;
+ 524:Src/main.c    ****         if (iMpu == 20) {
+ 525:Src/main.c    ****             mpuReady = 1;
+ 526:Src/main.c    ****             iMpu = 0;
+ 527:Src/main.c    ****         }
+ 528:Src/main.c    ****     }
+ 529:Src/main.c    **** 
+ 530:Src/main.c    ****     // HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, GPIO_PIN_RESET);
+ 531:Src/main.c    ****     // HAL_GPIO_WritePin(GPIOB, GPIO_PIN_13, GPIO_PIN_RESET);
+ 532:Src/main.c    **** }
+ 1401              		.loc 1 532 0
+ 1402 00d6 07B0     		add	sp, sp, #28
+ 1403              	.LCFI7:
+ 1404              		.cfi_remember_state
+ 1405              		.cfi_def_cfa_offset 20
+ 1406              		@ sp needed
+ 1407 00d8 F0BD     		pop	{r4, r5, r6, r7, pc}
+ 1408              	.LVL139:
+ 1409              	.L137:
+ 1410              	.LCFI8:
+ 1411              		.cfi_restore_state
+ 1412              	.LBB36:
+ 434:Src/main.c    ****                 sdBufferA[iTim][i] = timeBuffer[i];
+ 1413              		.loc 1 434 0
+ 1414 00da 0022     		movs	r2, #0
+ 1415 00dc C2E7     		b	.L91
+ 1416              	.LVL140:
+ 1417              	.L97:
+ 1418              	.LBE36:
+ 1419              	.LBB37:
+ 439:Src/main.c    ****             }
+ 1420              		.loc 1 439 0 discriminator 3
+ 1421 00de 704B     		ldr	r3, .L146+24
+ 1422 00e0 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1423 00e2 6C49     		ldr	r1, .L146+12
+ 1424 00e4 885C     		ldrb	r0, [r1, r2]	@ zero_extendqisi2
+ 1425 00e6 C3EBC303 		rsb	r3, r3, r3, lsl #3
+ 1426 00ea 03EB0313 		add	r3, r3, r3, lsl #4
+ 1427 00ee 7249     		ldr	r1, .L146+48
+ 1428 00f0 0B44     		add	r3, r3, r1
+ 1429 00f2 9854     		strb	r0, [r3, r2]
+ 438:Src/main.c    ****                 sdBufferB[iTim][i] = timeBuffer[i];
+ARM GAS  C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s 			page 39
+
+
+ 1430              		.loc 1 438 0 discriminator 3
+ 1431 00f4 0132     		adds	r2, r2, #1
+ 1432              	.LVL141:
+ 1433              	.L95:
+ 438:Src/main.c    ****                 sdBufferB[iTim][i] = timeBuffer[i];
+ 1434              		.loc 1 438 0 is_stmt 0 discriminator 1
+ 1435 00f6 0A2A     		cmp	r2, #10
+ 1436 00f8 F1DD     		ble	.L97
+ 1437 00fa B5E7     		b	.L94
+ 1438              	.LVL142:
+ 1439              	.L138:
+ 438:Src/main.c    ****                 sdBufferB[iTim][i] = timeBuffer[i];
+ 1440              		.loc 1 438 0
+ 1441 00fc 0022     		movs	r2, #0
+ 1442 00fe FAE7     		b	.L95
+ 1443              	.LVL143:
+ 1444              	.L99:
+ 1445              	.LBE37:
+ 1446              	.LBB38:
+ 444:Src/main.c    ****             }
+ 1447              		.loc 1 444 0 is_stmt 1 discriminator 3
+ 1448 0100 674B     		ldr	r3, .L146+24
+ 1449 0102 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1450 0104 6349     		ldr	r1, .L146+12
+ 1451 0106 885C     		ldrb	r0, [r1, r2]	@ zero_extendqisi2
+ 1452 0108 C3EBC303 		rsb	r3, r3, r3, lsl #3
+ 1453 010c 03EB0313 		add	r3, r3, r3, lsl #4
+ 1454 0110 6A49     		ldr	r1, .L146+52
+ 1455 0112 0B44     		add	r3, r3, r1
+ 1456 0114 9854     		strb	r0, [r3, r2]
+ 443:Src/main.c    ****                 sdBufferC[iTim][i] = timeBuffer[i];
+ 1457              		.loc 1 443 0 discriminator 3
+ 1458 0116 0132     		adds	r2, r2, #1
+ 1459              	.LVL144:
+ 1460              	.L98:
+ 443:Src/main.c    ****                 sdBufferC[iTim][i] = timeBuffer[i];
+ 1461              		.loc 1 443 0 is_stmt 0 discriminator 1
+ 1462 0118 0A2A     		cmp	r2, #10
+ 1463 011a F1DD     		ble	.L99
+ 1464 011c A4E7     		b	.L94
+ 1465              	.LVL145:
+ 1466              	.L139:
+ 1467              	.LBE38:
+ 450:Src/main.c    ****             iTim = 0;
+ 1468              		.loc 1 450 0 is_stmt 1
+ 1469 011e 5E4B     		ldr	r3, .L146+16
+ 1470 0120 0122     		movs	r2, #1
+ 1471 0122 1A70     		strb	r2, [r3]
+ 451:Src/main.c    ****         }
+ 1472              		.loc 1 451 0
+ 1473 0124 5E4B     		ldr	r3, .L146+24
+ 1474 0126 0022     		movs	r2, #0
+ 1475 0128 1A70     		strb	r2, [r3]
+ 1476 012a A4E7     		b	.L90
+ 1477              	.LVL146:
+ 1478              	.L140:
+ 469:Src/main.c    **** 
+ARM GAS  C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s 			page 40
+
+
+ 1479              		.loc 1 469 0
+ 1480 012c 0497     		str	r7, [sp, #16]
+ 1481 012e 0396     		str	r6, [sp, #12]
+ 1482 0130 0295     		str	r5, [sp, #8]
+ 1483 0132 0194     		str	r4, [sp, #4]
+ 1484 0134 0090     		str	r0, [sp]
+ 1485 0136 6249     		ldr	r1, .L146+56
+ 1486 0138 6248     		ldr	r0, .L146+60
+ 1487              	.LVL147:
+ 1488 013a FFF7FEFF 		bl	sprintf
+ 1489              	.LVL148:
+ 471:Src/main.c    ****             for (int i = 0; i < 34; i++) {
+ 1490              		.loc 1 471 0
+ 1491 013e 574B     		ldr	r3, .L146+20
+ 1492 0140 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1493 0142 012B     		cmp	r3, #1
+ 1494 0144 34D0     		beq	.L142
+ 475:Src/main.c    ****             for (int i = 0; i < 34; i++) {
+ 1495              		.loc 1 475 0
+ 1496 0146 022B     		cmp	r3, #2
+ 1497 0148 34D0     		beq	.L143
+ 480:Src/main.c    ****             for (int i = 0; i < 34; i++) {
+ 1498              		.loc 1 480 0
+ 1499 014a 032B     		cmp	r3, #3
+ 1500 014c 21D1     		bne	.L104
+ 1501              	.LBB39:
+ 481:Src/main.c    ****                 sdBufferC[iAdc][i+83] = adcBuffer[i];
+ 1502              		.loc 1 481 0
+ 1503 014e 0022     		movs	r2, #0
+ 1504              	.LVL149:
+ 1505              	.L108:
+ 481:Src/main.c    ****                 sdBufferC[iAdc][i+83] = adcBuffer[i];
+ 1506              		.loc 1 481 0 is_stmt 0 discriminator 1
+ 1507 0150 212A     		cmp	r2, #33
+ 1508 0152 1EDC     		bgt	.L104
+ 482:Src/main.c    ****             }
+ 1509              		.loc 1 482 0 is_stmt 1 discriminator 3
+ 1510 0154 5C4B     		ldr	r3, .L146+64
+ 1511 0156 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1512 0158 02F15300 		add	r0, r2, #83
+ 1513 015c 5949     		ldr	r1, .L146+60
+ 1514 015e 8C5C     		ldrb	r4, [r1, r2]	@ zero_extendqisi2
+ 1515 0160 C3EBC303 		rsb	r3, r3, r3, lsl #3
+ 1516 0164 03EB0313 		add	r3, r3, r3, lsl #4
+ 1517 0168 5449     		ldr	r1, .L146+52
+ 1518 016a 0B44     		add	r3, r3, r1
+ 1519 016c 1C54     		strb	r4, [r3, r0]
+ 481:Src/main.c    ****                 sdBufferC[iAdc][i+83] = adcBuffer[i];
+ 1520              		.loc 1 481 0 discriminator 3
+ 1521 016e 0132     		adds	r2, r2, #1
+ 1522              	.LVL150:
+ 1523 0170 EEE7     		b	.L108
+ 1524              	.LVL151:
+ 1525              	.L103:
+ 1526              	.LBE39:
+ 1527              	.LBB40:
+ 473:Src/main.c    ****             }
+ARM GAS  C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s 			page 41
+
+
+ 1528              		.loc 1 473 0 discriminator 3
+ 1529 0172 554B     		ldr	r3, .L146+64
+ 1530 0174 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1531 0176 02F15300 		add	r0, r2, #83
+ 1532 017a 5249     		ldr	r1, .L146+60
+ 1533 017c 8C5C     		ldrb	r4, [r1, r2]	@ zero_extendqisi2
+ 1534 017e C3EBC303 		rsb	r3, r3, r3, lsl #3
+ 1535 0182 03EB0313 		add	r3, r3, r3, lsl #4
+ 1536 0186 4749     		ldr	r1, .L146+28
+ 1537 0188 0B44     		add	r3, r3, r1
+ 1538 018a 1C54     		strb	r4, [r3, r0]
+ 472:Src/main.c    ****                 sdBufferA[iAdc][i+83] = adcBuffer[i];
+ 1539              		.loc 1 472 0 discriminator 3
+ 1540 018c 0132     		adds	r2, r2, #1
+ 1541              	.LVL152:
+ 1542              	.L101:
+ 472:Src/main.c    ****                 sdBufferA[iAdc][i+83] = adcBuffer[i];
+ 1543              		.loc 1 472 0 is_stmt 0 discriminator 1
+ 1544 018e 212A     		cmp	r2, #33
+ 1545 0190 EFDD     		ble	.L103
+ 1546              	.LVL153:
+ 1547              	.L104:
+ 1548              	.LBE40:
+ 486:Src/main.c    ****         if (iAdc == 20) {
+ 1549              		.loc 1 486 0 is_stmt 1
+ 1550 0192 4D4A     		ldr	r2, .L146+64
+ 1551 0194 1378     		ldrb	r3, [r2]	@ zero_extendqisi2
+ 1552 0196 0133     		adds	r3, r3, #1
+ 1553 0198 DBB2     		uxtb	r3, r3
+ 1554 019a 1370     		strb	r3, [r2]
+ 487:Src/main.c    ****             adcReady = 1;
+ 1555              		.loc 1 487 0
+ 1556 019c 142B     		cmp	r3, #20
+ 1557 019e 7FF476AF 		bne	.L100
+ 488:Src/main.c    ****             iAdc = 0;
+ 1558              		.loc 1 488 0
+ 1559 01a2 424B     		ldr	r3, .L146+36
+ 1560 01a4 0122     		movs	r2, #1
+ 1561 01a6 1A70     		strb	r2, [r3]
+ 489:Src/main.c    ****         }
+ 1562              		.loc 1 489 0
+ 1563 01a8 474B     		ldr	r3, .L146+64
+ 1564 01aa 0022     		movs	r2, #0
+ 1565 01ac 1A70     		strb	r2, [r3]
+ 1566 01ae 6EE7     		b	.L100
+ 1567              	.LVL154:
+ 1568              	.L142:
+ 1569              	.LBB41:
+ 472:Src/main.c    ****                 sdBufferA[iAdc][i+83] = adcBuffer[i];
+ 1570              		.loc 1 472 0
+ 1571 01b0 0022     		movs	r2, #0
+ 1572 01b2 ECE7     		b	.L101
+ 1573              	.L143:
+ 1574              	.LBE41:
+ 1575              	.LBB42:
+ 476:Src/main.c    ****                 sdBufferB[iAdc][i+83] = adcBuffer[i];
+ 1576              		.loc 1 476 0
+ARM GAS  C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s 			page 42
+
+
+ 1577 01b4 0022     		movs	r2, #0
+ 1578              	.LVL155:
+ 1579              	.L105:
+ 476:Src/main.c    ****                 sdBufferB[iAdc][i+83] = adcBuffer[i];
+ 1580              		.loc 1 476 0 is_stmt 0 discriminator 1
+ 1581 01b6 212A     		cmp	r2, #33
+ 1582 01b8 EBDC     		bgt	.L104
+ 477:Src/main.c    ****             }
+ 1583              		.loc 1 477 0 is_stmt 1 discriminator 3
+ 1584 01ba 434B     		ldr	r3, .L146+64
+ 1585 01bc 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1586 01be 02F15300 		add	r0, r2, #83
+ 1587 01c2 4049     		ldr	r1, .L146+60
+ 1588 01c4 8C5C     		ldrb	r4, [r1, r2]	@ zero_extendqisi2
+ 1589 01c6 C3EBC303 		rsb	r3, r3, r3, lsl #3
+ 1590 01ca 03EB0313 		add	r3, r3, r3, lsl #4
+ 1591 01ce 3A49     		ldr	r1, .L146+48
+ 1592 01d0 0B44     		add	r3, r3, r1
+ 1593 01d2 1C54     		strb	r4, [r3, r0]
+ 476:Src/main.c    ****                 sdBufferB[iAdc][i+83] = adcBuffer[i];
+ 1594              		.loc 1 476 0 discriminator 3
+ 1595 01d4 0132     		adds	r2, r2, #1
+ 1596              	.LVL156:
+ 1597 01d6 EEE7     		b	.L105
+ 1598              	.LVL157:
+ 1599              	.L141:
+ 1600              	.LBE42:
+ 506:Src/main.c    **** 
+ 1601              		.loc 1 506 0
+ 1602 01d8 0391     		str	r1, [sp, #12]
+ 1603 01da 0295     		str	r5, [sp, #8]
+ 1604 01dc 0194     		str	r4, [sp, #4]
+ 1605 01de 0090     		str	r0, [sp]
+ 1606 01e0 3A49     		ldr	r1, .L146+68
+ 1607              	.LVL158:
+ 1608 01e2 3B48     		ldr	r0, .L146+72
+ 1609              	.LVL159:
+ 1610 01e4 FFF7FEFF 		bl	sprintf
+ 1611              	.LVL160:
+ 508:Src/main.c    ****             for (int i = 0; i < 41; i++) {
+ 1612              		.loc 1 508 0
+ 1613 01e8 2C4B     		ldr	r3, .L146+20
+ 1614 01ea 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1615 01ec 012B     		cmp	r3, #1
+ 1616 01ee 24D0     		beq	.L144
+ 512:Src/main.c    ****             for (int i = 0; i < 41; i++) {
+ 1617              		.loc 1 512 0
+ 1618 01f0 022B     		cmp	r3, #2
+ 1619 01f2 35D0     		beq	.L145
+ 517:Src/main.c    ****             for (int i = 0; i < 41; i++) {
+ 1620              		.loc 1 517 0
+ 1621 01f4 032B     		cmp	r3, #3
+ 1622 01f6 11D1     		bne	.L114
+ 1623              	.LBB43:
+ 518:Src/main.c    ****                 sdBufferC[iMpu][i+41] = mpuBuffer[i];
+ 1624              		.loc 1 518 0
+ 1625 01f8 0022     		movs	r2, #0
+ARM GAS  C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s 			page 43
+
+
+ 1626 01fa 41E0     		b	.L118
+ 1627              	.LVL161:
+ 1628              	.L113:
+ 1629              	.LBE43:
+ 1630              	.LBB44:
+ 510:Src/main.c    ****             }
+ 1631              		.loc 1 510 0 discriminator 3
+ 1632 01fc 354B     		ldr	r3, .L146+76
+ 1633 01fe 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1634 0200 02F12900 		add	r0, r2, #41
+ 1635 0204 3249     		ldr	r1, .L146+72
+ 1636 0206 8C5C     		ldrb	r4, [r1, r2]	@ zero_extendqisi2
+ 1637 0208 C3EBC303 		rsb	r3, r3, r3, lsl #3
+ 1638 020c 03EB0313 		add	r3, r3, r3, lsl #4
+ 1639 0210 2449     		ldr	r1, .L146+28
+ 1640 0212 0B44     		add	r3, r3, r1
+ 1641 0214 1C54     		strb	r4, [r3, r0]
+ 509:Src/main.c    ****                 sdBufferA[iMpu][i+41] = mpuBuffer[i];
+ 1642              		.loc 1 509 0 discriminator 3
+ 1643 0216 0132     		adds	r2, r2, #1
+ 1644              	.LVL162:
+ 1645              	.L111:
+ 509:Src/main.c    ****                 sdBufferA[iMpu][i+41] = mpuBuffer[i];
+ 1646              		.loc 1 509 0 is_stmt 0 discriminator 1
+ 1647 0218 282A     		cmp	r2, #40
+ 1648 021a EFDD     		ble	.L113
+ 1649              	.LVL163:
+ 1650              	.L114:
+ 1651              	.LBE44:
+ 523:Src/main.c    ****         if (iMpu == 20) {
+ 1652              		.loc 1 523 0 is_stmt 1
+ 1653 021c 2D4A     		ldr	r2, .L146+76
+ 1654 021e 1378     		ldrb	r3, [r2]	@ zero_extendqisi2
+ 1655 0220 0133     		adds	r3, r3, #1
+ 1656 0222 DBB2     		uxtb	r3, r3
+ 1657 0224 1370     		strb	r3, [r2]
+ 524:Src/main.c    ****             mpuReady = 1;
+ 1658              		.loc 1 524 0
+ 1659 0226 142B     		cmp	r3, #20
+ 1660 0228 7FF455AF 		bne	.L88
+ 525:Src/main.c    ****             iMpu = 0;
+ 1661              		.loc 1 525 0
+ 1662 022c 214B     		ldr	r3, .L146+44
+ 1663 022e 0122     		movs	r2, #1
+ 1664 0230 1A70     		strb	r2, [r3]
+ 526:Src/main.c    ****         }
+ 1665              		.loc 1 526 0
+ 1666 0232 284B     		ldr	r3, .L146+76
+ 1667 0234 0022     		movs	r2, #0
+ 1668 0236 1A70     		strb	r2, [r3]
+ 1669              		.loc 1 532 0
+ 1670 0238 4DE7     		b	.L88
+ 1671              	.LVL164:
+ 1672              	.L144:
+ 1673              	.LBB45:
+ 509:Src/main.c    ****                 sdBufferA[iMpu][i+41] = mpuBuffer[i];
+ 1674              		.loc 1 509 0
+ARM GAS  C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s 			page 44
+
+
+ 1675 023a 0022     		movs	r2, #0
+ 1676 023c ECE7     		b	.L111
+ 1677              	.LVL165:
+ 1678              	.L117:
+ 1679              	.LBE45:
+ 1680              	.LBB46:
+ 514:Src/main.c    ****             }
+ 1681              		.loc 1 514 0 discriminator 3
+ 1682 023e 254B     		ldr	r3, .L146+76
+ 1683 0240 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1684 0242 02F12900 		add	r0, r2, #41
+ 1685 0246 2249     		ldr	r1, .L146+72
+ 1686 0248 8C5C     		ldrb	r4, [r1, r2]	@ zero_extendqisi2
+ 1687 024a C3EBC303 		rsb	r3, r3, r3, lsl #3
+ 1688 024e 03EB0313 		add	r3, r3, r3, lsl #4
+ 1689 0252 1949     		ldr	r1, .L146+48
+ 1690 0254 0B44     		add	r3, r3, r1
+ 1691 0256 1C54     		strb	r4, [r3, r0]
+ 513:Src/main.c    ****                 sdBufferB[iMpu][i+41] = mpuBuffer[i];
+ 1692              		.loc 1 513 0 discriminator 3
+ 1693 0258 0132     		adds	r2, r2, #1
+ 1694              	.LVL166:
+ 1695              	.L115:
+ 513:Src/main.c    ****                 sdBufferB[iMpu][i+41] = mpuBuffer[i];
+ 1696              		.loc 1 513 0 is_stmt 0 discriminator 1
+ 1697 025a 282A     		cmp	r2, #40
+ 1698 025c EFDD     		ble	.L117
+ 1699 025e DDE7     		b	.L114
+ 1700              	.LVL167:
+ 1701              	.L145:
+ 513:Src/main.c    ****                 sdBufferB[iMpu][i+41] = mpuBuffer[i];
+ 1702              		.loc 1 513 0
+ 1703 0260 0022     		movs	r2, #0
+ 1704 0262 FAE7     		b	.L115
+ 1705              	.LVL168:
+ 1706              	.L119:
+ 1707              	.LBE46:
+ 1708              	.LBB47:
+ 519:Src/main.c    ****             }
+ 1709              		.loc 1 519 0 is_stmt 1 discriminator 3
+ 1710 0264 1B4B     		ldr	r3, .L146+76
+ 1711 0266 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1712 0268 02F12900 		add	r0, r2, #41
+ 1713 026c 1849     		ldr	r1, .L146+72
+ 1714 026e 8C5C     		ldrb	r4, [r1, r2]	@ zero_extendqisi2
+ 1715 0270 C3EBC303 		rsb	r3, r3, r3, lsl #3
+ 1716 0274 03EB0313 		add	r3, r3, r3, lsl #4
+ 1717 0278 1049     		ldr	r1, .L146+52
+ 1718 027a 0B44     		add	r3, r3, r1
+ 1719 027c 1C54     		strb	r4, [r3, r0]
+ 518:Src/main.c    ****                 sdBufferC[iMpu][i+41] = mpuBuffer[i];
+ 1720              		.loc 1 518 0 discriminator 3
+ 1721 027e 0132     		adds	r2, r2, #1
+ 1722              	.LVL169:
+ 1723              	.L118:
+ 518:Src/main.c    ****                 sdBufferC[iMpu][i+41] = mpuBuffer[i];
+ 1724              		.loc 1 518 0 is_stmt 0 discriminator 1
+ARM GAS  C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s 			page 45
+
+
+ 1725 0280 282A     		cmp	r2, #40
+ 1726 0282 EFDD     		ble	.L119
+ 1727 0284 CAE7     		b	.L114
+ 1728              	.L147:
+ 1729 0286 00BF     		.align	2
+ 1730              	.L146:
+ 1731 0288 00000000 		.word	.LANCHOR0
+ 1732 028c 00000000 		.word	.LANCHOR1
+ 1733 0290 00000000 		.word	.LC3
+ 1734 0294 00000000 		.word	timeBuffer
+ 1735 0298 00000000 		.word	timReady
+ 1736 029c 00000000 		.word	nBuffer
+ 1737 02a0 00000000 		.word	.LANCHOR2
+ 1738 02a4 00000000 		.word	sdBufferA
+ 1739 02a8 00000000 		.word	rawAdc
+ 1740 02ac 00000000 		.word	adcReady
+ 1741 02b0 00000000 		.word	rawMpu
+ 1742 02b4 00000000 		.word	mpuReady
+ 1743 02b8 00000000 		.word	sdBufferB
+ 1744 02bc 00000000 		.word	sdBufferC
+ 1745 02c0 0C000000 		.word	.LC4
+ 1746 02c4 00000000 		.word	adcBuffer
+ 1747 02c8 00000000 		.word	.LANCHOR3
+ 1748 02cc 38000000 		.word	.LC5
+ 1749 02d0 00000000 		.word	mpuBuffer
+ 1750 02d4 00000000 		.word	.LANCHOR4
+ 1751              	.LBE47:
+ 1752              		.cfi_endproc
+ 1753              	.LFE69:
+ 1755              		.section	.text.HAL_UART_RxCpltCallback,"ax",%progbits
+ 1756              		.align	1
+ 1757              		.global	HAL_UART_RxCpltCallback
+ 1758              		.syntax unified
+ 1759              		.thumb
+ 1760              		.thumb_func
+ 1761              		.fpu softvfp
+ 1763              	HAL_UART_RxCpltCallback:
+ 1764              	.LFB70:
+ 533:Src/main.c    **** 
+ 534:Src/main.c    **** void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+ 535:Src/main.c    **** {
+ 1765              		.loc 1 535 0 is_stmt 1
+ 1766              		.cfi_startproc
+ 1767              		@ args = 0, pretend = 0, frame = 0
+ 1768              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1769              		@ link register save eliminated.
+ 1770              	.LVL170:
+ 536:Src/main.c    ****     // HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, GPIO_PIN_SET);
+ 537:Src/main.c    ****     // HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, GPIO_PIN_RESET);
+ 538:Src/main.c    **** }
+ 1771              		.loc 1 538 0
+ 1772 0000 7047     		bx	lr
+ 1773              		.cfi_endproc
+ 1774              	.LFE70:
+ 1776              		.section	.text.HAL_ADC_ConvCpltCallback,"ax",%progbits
+ 1777              		.align	1
+ 1778              		.global	HAL_ADC_ConvCpltCallback
+ARM GAS  C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s 			page 46
+
+
+ 1779              		.syntax unified
+ 1780              		.thumb
+ 1781              		.thumb_func
+ 1782              		.fpu softvfp
+ 1784              	HAL_ADC_ConvCpltCallback:
+ 1785              	.LFB71:
+ 539:Src/main.c    **** 
+ 540:Src/main.c    **** void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
+ 541:Src/main.c    **** {
+ 1786              		.loc 1 541 0
+ 1787              		.cfi_startproc
+ 1788              		@ args = 0, pretend = 0, frame = 0
+ 1789              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1790              	.LVL171:
+ 1791 0000 00B5     		push	{lr}
+ 1792              	.LCFI9:
+ 1793              		.cfi_def_cfa_offset 4
+ 1794              		.cfi_offset 14, -4
+ 1795 0002 83B0     		sub	sp, sp, #12
+ 1796              	.LCFI10:
+ 1797              		.cfi_def_cfa_offset 16
+ 542:Src/main.c    ****     // HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, GPIO_PIN_SET);
+ 543:Src/main.c    ****     // HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, GPIO_PIN_RESET);
+ 544:Src/main.c    ****     HAL_I2C_Mem_Read_IT(&hi2c1, 0xD0, 0x3B, I2C_MEMADD_SIZE_8BIT, rawMpu, 14);
+ 1798              		.loc 1 544 0
+ 1799 0004 0E23     		movs	r3, #14
+ 1800 0006 0193     		str	r3, [sp, #4]
+ 1801 0008 054B     		ldr	r3, .L151
+ 1802 000a 0093     		str	r3, [sp]
+ 1803 000c 0123     		movs	r3, #1
+ 1804 000e 3B22     		movs	r2, #59
+ 1805 0010 D021     		movs	r1, #208
+ 1806 0012 0448     		ldr	r0, .L151+4
+ 1807              	.LVL172:
+ 1808 0014 FFF7FEFF 		bl	HAL_I2C_Mem_Read_IT
+ 1809              	.LVL173:
+ 545:Src/main.c    **** }
+ 1810              		.loc 1 545 0
+ 1811 0018 03B0     		add	sp, sp, #12
+ 1812              	.LCFI11:
+ 1813              		.cfi_def_cfa_offset 4
+ 1814              		@ sp needed
+ 1815 001a 5DF804FB 		ldr	pc, [sp], #4
+ 1816              	.L152:
+ 1817 001e 00BF     		.align	2
+ 1818              	.L151:
+ 1819 0020 00000000 		.word	rawMpu
+ 1820 0024 00000000 		.word	hi2c1
+ 1821              		.cfi_endproc
+ 1822              	.LFE71:
+ 1824              		.section	.text.Error_Handler,"ax",%progbits
+ 1825              		.align	1
+ 1826              		.global	Error_Handler
+ 1827              		.syntax unified
+ 1828              		.thumb
+ 1829              		.thumb_func
+ 1830              		.fpu softvfp
+ARM GAS  C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s 			page 47
+
+
+ 1832              	Error_Handler:
+ 1833              	.LFB72:
+ 546:Src/main.c    **** /* USER CODE END 4 */
+ 547:Src/main.c    **** 
+ 548:Src/main.c    **** /**
+ 549:Src/main.c    ****   * @brief  This function is executed in case of error occurrence.
+ 550:Src/main.c    ****   * @retval None
+ 551:Src/main.c    ****   */
+ 552:Src/main.c    **** void Error_Handler(void)
+ 553:Src/main.c    **** {
+ 1834              		.loc 1 553 0
+ 1835              		.cfi_startproc
+ 1836              		@ args = 0, pretend = 0, frame = 0
+ 1837              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1838              		@ link register save eliminated.
+ 554:Src/main.c    ****     /* USER CODE BEGIN Error_Handler_Debug */
+ 555:Src/main.c    ****     /* User can add his own implementation to report the HAL error return state */
+ 556:Src/main.c    **** 
+ 557:Src/main.c    ****     /* USER CODE END Error_Handler_Debug */
+ 558:Src/main.c    **** }
+ 1839              		.loc 1 558 0
+ 1840 0000 7047     		bx	lr
+ 1841              		.cfi_endproc
+ 1842              	.LFE72:
+ 1844              		.comm	dataReady,1,1
+ 1845              		.comm	nBuffer,1,1
+ 1846              		.comm	timReady,1,1
+ 1847              		.comm	mpuReady,1,1
+ 1848              		.comm	adcReady,1,1
+ 1849              		.comm	rawMpu,14,4
+ 1850              		.comm	rawAdc,14,4
+ 1851              		.comm	sdBufferC,2380,4
+ 1852              		.comm	sdBufferB,2380,4
+ 1853              		.comm	sdBufferA,2380,4
+ 1854              		.comm	rawGps,51,4
+ 1855              		.comm	gpsReady,1,1
+ 1856              		.comm	adcBuffer,35,4
+ 1857              		.comm	timeBuffer,12,4
+ 1858              		.comm	mpuBuffer,42,4
+ 1859              		.comm	textTxBuffer,500,4
+ 1860              		.comm	res,1,1
+ 1861              		.comm	byteswritten,4,4
+ 1862              		.comm	SDPath,4,4
+ 1863              		.comm	MyFile,548,4
+ 1864              		.comm	SDFatFs,560,4
+ 1865              		.section	.bss.iAdc.8269,"aw",%nobits
+ 1866              		.set	.LANCHOR3,. + 0
+ 1869              	iAdc.8269:
+ 1870 0000 00       		.space	1
+ 1871              		.section	.bss.iMpu.8288,"aw",%nobits
+ 1872              		.set	.LANCHOR4,. + 0
+ 1875              	iMpu.8288:
+ 1876 0000 00       		.space	1
+ 1877              		.section	.bss.iTim.8249,"aw",%nobits
+ 1878              		.set	.LANCHOR2,. + 0
+ 1881              	iTim.8249:
+ 1882 0000 00       		.space	1
+ARM GAS  C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s 			page 48
+
+
+ 1883              		.section	.bss.millis.8248,"aw",%nobits
+ 1884              		.align	2
+ 1885              		.set	.LANCHOR0,. + 0
+ 1888              	millis.8248:
+ 1889 0000 00000000 		.space	4
+ 1890              		.section	.bss.seconds.8247,"aw",%nobits
+ 1891              		.align	2
+ 1892              		.set	.LANCHOR1,. + 0
+ 1895              	seconds.8247:
+ 1896 0000 00000000 		.space	4
+ 1897              		.section	.rodata.HAL_I2C_MemRxCpltCallback.str1.4,"aMS",%progbits,1
+ 1898              		.align	2
+ 1899              	.LC3:
+ 1900 0000 25303664 		.ascii	"%06d.%03dA\000"
+ 1900      2E253033 
+ 1900      644100
+ 1901 000b 00       		.space	1
+ 1902              	.LC4:
+ 1903 000c 25303468 		.ascii	"%04hdA%04hdA%04hdA%04hdA%04hdA%04hdA%04hd\000"
+ 1903      64412530 
+ 1903      34686441 
+ 1903      25303468 
+ 1903      64412530 
+ 1904 0036 0000     		.space	2
+ 1905              	.LC5:
+ 1906 0038 25303668 		.ascii	"%06hdA%06hdA%06hdA%06hdA%06hdA%06hd\000"
+ 1906      64412530 
+ 1906      36686441 
+ 1906      25303668 
+ 1906      64412530 
+ 1907              		.section	.rodata.main.str1.4,"aMS",%progbits,1
+ 1908              		.align	2
+ 1909              	.LC0:
+ 1910 0000 62657461 		.ascii	"betaLogger USART1 test\015\000"
+ 1910      4C6F6767 
+ 1910      65722055 
+ 1910      53415254 
+ 1910      31207465 
+ 1911              	.LC1:
+ 1912 0018 66696C65 		.ascii	"file%04d.dlf\000"
+ 1912      25303464 
+ 1912      2E646C66 
+ 1912      00
+ 1913 0025 000000   		.space	3
+ 1914              	.LC2:
+ 1915 0028 2356320D 		.ascii	"#V2\015#DATASTART\015Datalog Time; GPS Latitude; GP"
+ 1915      23444154 
+ 1915      41535441 
+ 1915      52540D44 
+ 1915      6174616C 
+ 1916 0055 53204C6F 		.ascii	"S Longitude; GPS Speed;Ax;Ay;Az;Gx;Gy;Gz;A1;A2;A3;A"
+ 1916      6E676974 
+ 1916      7564653B 
+ 1916      20475053 
+ 1916      20537065 
+ 1917 0088 343B4135 		.ascii	"4;A5;A6;A7;\015seg.; deg; deg; knots;un.;un.;un.;un"
+ 1917      3B41363B 
+ARM GAS  C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s 			page 49
+
+
+ 1917      41373B0D 
+ 1917      7365672E 
+ 1917      3B206465 
+ 1918 00b8 2E3B756E 		.ascii	".;un.;un.;un.;un.;un.;un.;un.;un.;un.;\015\000"
+ 1918      2E3B756E 
+ 1918      2E3B756E 
+ 1918      2E3B756E 
+ 1918      2E3B756E 
+ 1919              		.text
+ 1920              	.Letext0:
+ 1921              		.file 2 "c:\\program files (x86)\\embedded toolchain\\gnu tools arm embedded\\7 2017-q4-major\\arm
+ 1922              		.file 3 "c:\\program files (x86)\\embedded toolchain\\gnu tools arm embedded\\7 2017-q4-major\\arm
+ 1923              		.file 4 "Drivers/CMSIS/Include/core_cm3.h"
+ 1924              		.file 5 "Drivers/CMSIS/Device/ST/STM32F1xx/Include/system_stm32f1xx.h"
+ 1925              		.file 6 "Drivers/CMSIS/Device/ST/STM32F1xx/Include/stm32f103xb.h"
+ 1926              		.file 7 "c:\\program files (x86)\\embedded toolchain\\gnu tools arm embedded\\7 2017-q4-major\\arm
+ 1927              		.file 8 "c:\\program files (x86)\\embedded toolchain\\gnu tools arm embedded\\7 2017-q4-major\\arm
+ 1928              		.file 9 "c:\\program files (x86)\\embedded toolchain\\gnu tools arm embedded\\7 2017-q4-major\\lib
+ 1929              		.file 10 "c:\\program files (x86)\\embedded toolchain\\gnu tools arm embedded\\7 2017-q4-major\\ar
+ 1930              		.file 11 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_def.h"
+ 1931              		.file 12 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_rcc.h"
+ 1932              		.file 13 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_rcc_ex.h"
+ 1933              		.file 14 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_gpio.h"
+ 1934              		.file 15 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_dma.h"
+ 1935              		.file 16 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_adc.h"
+ 1936              		.file 17 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_i2c.h"
+ 1937              		.file 18 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_spi.h"
+ 1938              		.file 19 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim.h"
+ 1939              		.file 20 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h"
+ 1940              		.file 21 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_ll_usb.h"
+ 1941              		.file 22 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pcd.h"
+ 1942              		.file 23 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h"
+ 1943              		.file 24 "Inc/adc.h"
+ 1944              		.file 25 "Inc/i2c.h"
+ 1945              		.file 26 "Inc/spi.h"
+ 1946              		.file 27 "Inc/tim.h"
+ 1947              		.file 28 "Inc/usart.h"
+ 1948              		.file 29 "Inc/usb.h"
+ 1949              		.file 30 "Middlewares/Third_Party/FatFs/Src/integer.h"
+ 1950              		.file 31 "Middlewares/Third_Party/FatFs/Src/ff.h"
+ 1951              		.file 32 "c:\\program files (x86)\\embedded toolchain\\gnu tools arm embedded\\7 2017-q4-major\\ar
+ 1952              		.file 33 "Inc/gpio.h"
+ 1953              		.file 34 "Inc/dma.h"
+ 1954              		.file 35 "c:\\program files (x86)\\embedded toolchain\\gnu tools arm embedded\\7 2017-q4-major\\ar
+ 1955              		.file 36 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_adc_ex.h"
+ 1956              		.file 37 "<built-in>"
+ARM GAS  C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s 			page 50
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 main.c
+C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s:16     .text.SystemClock_Config:00000000 $t
+C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s:23     .text.SystemClock_Config:00000000 SystemClock_Config
+C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s:115    .text.main:00000000 $t
+C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s:122    .text.main:00000000 main
+C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s:719    .text.main:00000338 $d
+                            *COM*:000001f4 textTxBuffer
+                            *COM*:00000004 SDPath
+                            *COM*:00000230 SDFatFs
+                            *COM*:00000224 MyFile
+                            *COM*:00000001 res
+                            *COM*:00000004 byteswritten
+                            *COM*:0000094c sdBufferA
+                            *COM*:0000094c sdBufferB
+                            *COM*:0000094c sdBufferC
+                            *COM*:00000033 rawGps
+                            *COM*:0000000e rawAdc
+                            *COM*:00000001 adcReady
+                            *COM*:00000001 mpuReady
+                            *COM*:00000001 gpsReady
+                            *COM*:00000001 timReady
+                            *COM*:00000001 nBuffer
+C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s:748    .text.main:000003a0 $t
+C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s:1182   .text.main:000005b8 $d
+C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s:1199   .text.HAL_TIM_PeriodElapsedCallback:00000000 $t
+C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s:1206   .text.HAL_TIM_PeriodElapsedCallback:00000000 HAL_TIM_PeriodElapsedCallback
+C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s:1220   .text.HAL_I2C_MemRxCpltCallback:00000000 $t
+C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s:1227   .text.HAL_I2C_MemRxCpltCallback:00000000 HAL_I2C_MemRxCpltCallback
+C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s:1731   .text.HAL_I2C_MemRxCpltCallback:00000288 $d
+                            *COM*:0000000c timeBuffer
+                            *COM*:0000000e rawMpu
+                            *COM*:00000023 adcBuffer
+                            *COM*:0000002a mpuBuffer
+C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s:1756   .text.HAL_UART_RxCpltCallback:00000000 $t
+C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s:1763   .text.HAL_UART_RxCpltCallback:00000000 HAL_UART_RxCpltCallback
+C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s:1777   .text.HAL_ADC_ConvCpltCallback:00000000 $t
+C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s:1784   .text.HAL_ADC_ConvCpltCallback:00000000 HAL_ADC_ConvCpltCallback
+C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s:1819   .text.HAL_ADC_ConvCpltCallback:00000020 $d
+C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s:1825   .text.Error_Handler:00000000 $t
+C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s:1832   .text.Error_Handler:00000000 Error_Handler
+                            *COM*:00000001 dataReady
+C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s:1869   .bss.iAdc.8269:00000000 iAdc.8269
+C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s:1870   .bss.iAdc.8269:00000000 $d
+C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s:1875   .bss.iMpu.8288:00000000 iMpu.8288
+C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s:1876   .bss.iMpu.8288:00000000 $d
+C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s:1881   .bss.iTim.8249:00000000 iTim.8249
+C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s:1882   .bss.iTim.8249:00000000 $d
+C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s:1884   .bss.millis.8248:00000000 $d
+C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s:1888   .bss.millis.8248:00000000 millis.8248
+C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s:1891   .bss.seconds.8247:00000000 $d
+C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s:1895   .bss.seconds.8247:00000000 seconds.8247
+C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s:1898   .rodata.HAL_I2C_MemRxCpltCallback.str1.4:00000000 $d
+C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s:1908   .rodata.main.str1.4:00000000 $d
+
+UNDEFINED SYMBOLS
+HAL_RCC_OscConfig
+ARM GAS  C:\Users\Patrick\AppData\Local\Temp\ccN02SLZ.s 			page 51
+
+
+HAL_RCC_ClockConfig
+HAL_RCCEx_PeriphCLKConfig
+HAL_Init
+MX_GPIO_Init
+MX_DMA_Init
+MX_TIM3_Init
+MX_USART1_UART_Init
+MX_SPI1_Init
+MX_USART3_UART_Init
+MX_ADC1_Init
+MX_I2C1_Init
+MX_USB_PCD_Init
+strlen
+HAL_UART_Transmit
+f_mount
+sprintf
+f_open
+memcpy
+f_write
+f_sync
+HAL_I2C_Mem_Read
+HAL_I2C_Mem_Write
+HAL_UART_Receive_DMA
+HAL_TIM_Base_Start_IT
+HAL_ADCEx_Calibration_Start
+HAL_ADC_Start_DMA
+HAL_GPIO_WritePin
+huart1
+hi2c1
+huart3
+htim3
+hadc1
+HAL_GPIO_TogglePin
+HAL_I2C_Mem_Read_IT

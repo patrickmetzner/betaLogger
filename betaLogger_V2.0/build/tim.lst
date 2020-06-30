@@ -1,0 +1,398 @@
+ARM GAS  C:\Users\Patrick\AppData\Local\Temp\ccNZ99Y9.s 			page 1
+
+
+   1              		.cpu cortex-m3
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 1
+   9              		.eabi_attribute 34, 1
+  10              		.eabi_attribute 18, 4
+  11              		.file	"tim.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.MX_TIM3_Init,"ax",%progbits
+  16              		.align	1
+  17              		.global	MX_TIM3_Init
+  18              		.syntax unified
+  19              		.thumb
+  20              		.thumb_func
+  21              		.fpu softvfp
+  23              	MX_TIM3_Init:
+  24              	.LFB66:
+  25              		.file 1 "Src/tim.c"
+   1:Src/tim.c     **** /**
+   2:Src/tim.c     ****   ******************************************************************************
+   3:Src/tim.c     ****   * File Name          : TIM.c
+   4:Src/tim.c     ****   * Description        : This file provides code for the configuration
+   5:Src/tim.c     ****   *                      of the TIM instances.
+   6:Src/tim.c     ****   ******************************************************************************
+   7:Src/tim.c     ****   * @attention
+   8:Src/tim.c     ****   *
+   9:Src/tim.c     ****   * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
+  10:Src/tim.c     ****   * All rights reserved.</center></h2>
+  11:Src/tim.c     ****   *
+  12:Src/tim.c     ****   * This software component is licensed by ST under BSD 3-Clause license,
+  13:Src/tim.c     ****   * the "License"; You may not use this file except in compliance with the
+  14:Src/tim.c     ****   * License. You may obtain a copy of the License at:
+  15:Src/tim.c     ****   *                        opensource.org/licenses/BSD-3-Clause
+  16:Src/tim.c     ****   *
+  17:Src/tim.c     ****   ******************************************************************************
+  18:Src/tim.c     ****   */
+  19:Src/tim.c     **** 
+  20:Src/tim.c     **** /* Includes ------------------------------------------------------------------*/
+  21:Src/tim.c     **** #include "tim.h"
+  22:Src/tim.c     **** 
+  23:Src/tim.c     **** /* USER CODE BEGIN 0 */
+  24:Src/tim.c     **** 
+  25:Src/tim.c     **** /* USER CODE END 0 */
+  26:Src/tim.c     **** 
+  27:Src/tim.c     **** TIM_HandleTypeDef htim3;
+  28:Src/tim.c     **** 
+  29:Src/tim.c     **** /* TIM3 init function */
+  30:Src/tim.c     **** void MX_TIM3_Init(void)
+  31:Src/tim.c     **** {
+  26              		.loc 1 31 0
+  27              		.cfi_startproc
+ARM GAS  C:\Users\Patrick\AppData\Local\Temp\ccNZ99Y9.s 			page 2
+
+
+  28              		@ args = 0, pretend = 0, frame = 24
+  29              		@ frame_needed = 0, uses_anonymous_args = 0
+  30 0000 00B5     		push	{lr}
+  31              	.LCFI0:
+  32              		.cfi_def_cfa_offset 4
+  33              		.cfi_offset 14, -4
+  34 0002 87B0     		sub	sp, sp, #28
+  35              	.LCFI1:
+  36              		.cfi_def_cfa_offset 32
+  32:Src/tim.c     ****   TIM_ClockConfigTypeDef sClockSourceConfig = {0};
+  37              		.loc 1 32 0
+  38 0004 0023     		movs	r3, #0
+  39 0006 0293     		str	r3, [sp, #8]
+  40 0008 0393     		str	r3, [sp, #12]
+  41 000a 0493     		str	r3, [sp, #16]
+  42 000c 0593     		str	r3, [sp, #20]
+  33:Src/tim.c     ****   TIM_MasterConfigTypeDef sMasterConfig = {0};
+  43              		.loc 1 33 0
+  44 000e 0093     		str	r3, [sp]
+  45 0010 0193     		str	r3, [sp, #4]
+  34:Src/tim.c     **** 
+  35:Src/tim.c     ****   htim3.Instance = TIM3;
+  46              		.loc 1 35 0
+  47 0012 1548     		ldr	r0, .L9
+  48 0014 154A     		ldr	r2, .L9+4
+  49 0016 0260     		str	r2, [r0]
+  36:Src/tim.c     ****   htim3.Init.Prescaler = 599;
+  50              		.loc 1 36 0
+  51 0018 40F25722 		movw	r2, #599
+  52 001c 4260     		str	r2, [r0, #4]
+  37:Src/tim.c     ****   htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
+  53              		.loc 1 37 0
+  54 001e 8360     		str	r3, [r0, #8]
+  38:Src/tim.c     ****   htim3.Init.Period = 599;
+  55              		.loc 1 38 0
+  56 0020 C260     		str	r2, [r0, #12]
+  39:Src/tim.c     ****   htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  57              		.loc 1 39 0
+  58 0022 0361     		str	r3, [r0, #16]
+  40:Src/tim.c     ****   htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  59              		.loc 1 40 0
+  60 0024 8361     		str	r3, [r0, #24]
+  41:Src/tim.c     ****   if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
+  61              		.loc 1 41 0
+  62 0026 FFF7FEFF 		bl	HAL_TIM_Base_Init
+  63              	.LVL0:
+  64 002a A0B9     		cbnz	r0, .L6
+  65              	.L2:
+  42:Src/tim.c     ****   {
+  43:Src/tim.c     ****     Error_Handler();
+  44:Src/tim.c     ****   }
+  45:Src/tim.c     ****   sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  66              		.loc 1 45 0
+  67 002c 06A9     		add	r1, sp, #24
+  68 002e 4FF48053 		mov	r3, #4096
+  69 0032 41F8103D 		str	r3, [r1, #-16]!
+  46:Src/tim.c     ****   if (HAL_TIM_ConfigClockSource(&htim3, &sClockSourceConfig) != HAL_OK)
+ARM GAS  C:\Users\Patrick\AppData\Local\Temp\ccNZ99Y9.s 			page 3
+
+
+  70              		.loc 1 46 0
+  71 0036 0C48     		ldr	r0, .L9
+  72 0038 FFF7FEFF 		bl	HAL_TIM_ConfigClockSource
+  73              	.LVL1:
+  74 003c 70B9     		cbnz	r0, .L7
+  75              	.L3:
+  47:Src/tim.c     ****   {
+  48:Src/tim.c     ****     Error_Handler();
+  49:Src/tim.c     ****   }
+  50:Src/tim.c     ****   sMasterConfig.MasterOutputTrigger = TIM_TRGO_UPDATE;
+  76              		.loc 1 50 0
+  77 003e 2023     		movs	r3, #32
+  78 0040 0093     		str	r3, [sp]
+  51:Src/tim.c     ****   sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  79              		.loc 1 51 0
+  80 0042 0023     		movs	r3, #0
+  81 0044 0193     		str	r3, [sp, #4]
+  52:Src/tim.c     ****   if (HAL_TIMEx_MasterConfigSynchronization(&htim3, &sMasterConfig) != HAL_OK)
+  82              		.loc 1 52 0
+  83 0046 6946     		mov	r1, sp
+  84 0048 0748     		ldr	r0, .L9
+  85 004a FFF7FEFF 		bl	HAL_TIMEx_MasterConfigSynchronization
+  86              	.LVL2:
+  87 004e 40B9     		cbnz	r0, .L8
+  88              	.L1:
+  53:Src/tim.c     ****   {
+  54:Src/tim.c     ****     Error_Handler();
+  55:Src/tim.c     ****   }
+  56:Src/tim.c     **** 
+  57:Src/tim.c     **** }
+  89              		.loc 1 57 0
+  90 0050 07B0     		add	sp, sp, #28
+  91              	.LCFI2:
+  92              		.cfi_remember_state
+  93              		.cfi_def_cfa_offset 4
+  94              		@ sp needed
+  95 0052 5DF804FB 		ldr	pc, [sp], #4
+  96              	.L6:
+  97              	.LCFI3:
+  98              		.cfi_restore_state
+  43:Src/tim.c     ****   }
+  99              		.loc 1 43 0
+ 100 0056 FFF7FEFF 		bl	Error_Handler
+ 101              	.LVL3:
+ 102 005a E7E7     		b	.L2
+ 103              	.L7:
+  48:Src/tim.c     ****   }
+ 104              		.loc 1 48 0
+ 105 005c FFF7FEFF 		bl	Error_Handler
+ 106              	.LVL4:
+ 107 0060 EDE7     		b	.L3
+ 108              	.L8:
+  54:Src/tim.c     ****   }
+ 109              		.loc 1 54 0
+ 110 0062 FFF7FEFF 		bl	Error_Handler
+ 111              	.LVL5:
+ 112              		.loc 1 57 0
+ARM GAS  C:\Users\Patrick\AppData\Local\Temp\ccNZ99Y9.s 			page 4
+
+
+ 113 0066 F3E7     		b	.L1
+ 114              	.L10:
+ 115              		.align	2
+ 116              	.L9:
+ 117 0068 00000000 		.word	htim3
+ 118 006c 00040040 		.word	1073742848
+ 119              		.cfi_endproc
+ 120              	.LFE66:
+ 122              		.section	.text.HAL_TIM_Base_MspInit,"ax",%progbits
+ 123              		.align	1
+ 124              		.global	HAL_TIM_Base_MspInit
+ 125              		.syntax unified
+ 126              		.thumb
+ 127              		.thumb_func
+ 128              		.fpu softvfp
+ 130              	HAL_TIM_Base_MspInit:
+ 131              	.LFB67:
+  58:Src/tim.c     **** 
+  59:Src/tim.c     **** void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* tim_baseHandle)
+  60:Src/tim.c     **** {
+ 132              		.loc 1 60 0
+ 133              		.cfi_startproc
+ 134              		@ args = 0, pretend = 0, frame = 8
+ 135              		@ frame_needed = 0, uses_anonymous_args = 0
+ 136              	.LVL6:
+  61:Src/tim.c     **** 
+  62:Src/tim.c     ****   if(tim_baseHandle->Instance==TIM3)
+ 137              		.loc 1 62 0
+ 138 0000 0268     		ldr	r2, [r0]
+ 139 0002 0E4B     		ldr	r3, .L18
+ 140 0004 9A42     		cmp	r2, r3
+ 141 0006 00D0     		beq	.L17
+ 142 0008 7047     		bx	lr
+ 143              	.L17:
+  60:Src/tim.c     **** 
+ 144              		.loc 1 60 0
+ 145 000a 00B5     		push	{lr}
+ 146              	.LCFI4:
+ 147              		.cfi_def_cfa_offset 4
+ 148              		.cfi_offset 14, -4
+ 149 000c 83B0     		sub	sp, sp, #12
+ 150              	.LCFI5:
+ 151              		.cfi_def_cfa_offset 16
+ 152              	.LBB2:
+  63:Src/tim.c     ****   {
+  64:Src/tim.c     ****   /* USER CODE BEGIN TIM3_MspInit 0 */
+  65:Src/tim.c     **** 
+  66:Src/tim.c     ****   /* USER CODE END TIM3_MspInit 0 */
+  67:Src/tim.c     ****     /* TIM3 clock enable */
+  68:Src/tim.c     ****     __HAL_RCC_TIM3_CLK_ENABLE();
+ 153              		.loc 1 68 0
+ 154 000e 03F50333 		add	r3, r3, #134144
+ 155 0012 DA69     		ldr	r2, [r3, #28]
+ 156 0014 42F00202 		orr	r2, r2, #2
+ 157 0018 DA61     		str	r2, [r3, #28]
+ 158 001a DB69     		ldr	r3, [r3, #28]
+ 159 001c 03F00203 		and	r3, r3, #2
+ARM GAS  C:\Users\Patrick\AppData\Local\Temp\ccNZ99Y9.s 			page 5
+
+
+ 160 0020 0193     		str	r3, [sp, #4]
+ 161 0022 019B     		ldr	r3, [sp, #4]
+ 162              	.LBE2:
+  69:Src/tim.c     **** 
+  70:Src/tim.c     ****     /* TIM3 interrupt Init */
+  71:Src/tim.c     ****     HAL_NVIC_SetPriority(TIM3_IRQn, 0, 0);
+ 163              		.loc 1 71 0
+ 164 0024 0022     		movs	r2, #0
+ 165 0026 1146     		mov	r1, r2
+ 166 0028 1D20     		movs	r0, #29
+ 167              	.LVL7:
+ 168 002a FFF7FEFF 		bl	HAL_NVIC_SetPriority
+ 169              	.LVL8:
+  72:Src/tim.c     ****     HAL_NVIC_EnableIRQ(TIM3_IRQn);
+ 170              		.loc 1 72 0
+ 171 002e 1D20     		movs	r0, #29
+ 172 0030 FFF7FEFF 		bl	HAL_NVIC_EnableIRQ
+ 173              	.LVL9:
+  73:Src/tim.c     ****   /* USER CODE BEGIN TIM3_MspInit 1 */
+  74:Src/tim.c     **** 
+  75:Src/tim.c     ****   /* USER CODE END TIM3_MspInit 1 */
+  76:Src/tim.c     ****   }
+  77:Src/tim.c     **** }
+ 174              		.loc 1 77 0
+ 175 0034 03B0     		add	sp, sp, #12
+ 176              	.LCFI6:
+ 177              		.cfi_def_cfa_offset 4
+ 178              		@ sp needed
+ 179 0036 5DF804FB 		ldr	pc, [sp], #4
+ 180              	.L19:
+ 181 003a 00BF     		.align	2
+ 182              	.L18:
+ 183 003c 00040040 		.word	1073742848
+ 184              		.cfi_endproc
+ 185              	.LFE67:
+ 187              		.section	.text.HAL_TIM_Base_MspDeInit,"ax",%progbits
+ 188              		.align	1
+ 189              		.global	HAL_TIM_Base_MspDeInit
+ 190              		.syntax unified
+ 191              		.thumb
+ 192              		.thumb_func
+ 193              		.fpu softvfp
+ 195              	HAL_TIM_Base_MspDeInit:
+ 196              	.LFB68:
+  78:Src/tim.c     **** 
+  79:Src/tim.c     **** void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* tim_baseHandle)
+  80:Src/tim.c     **** {
+ 197              		.loc 1 80 0
+ 198              		.cfi_startproc
+ 199              		@ args = 0, pretend = 0, frame = 0
+ 200              		@ frame_needed = 0, uses_anonymous_args = 0
+ 201              	.LVL10:
+ 202 0000 08B5     		push	{r3, lr}
+ 203              	.LCFI7:
+ 204              		.cfi_def_cfa_offset 8
+ 205              		.cfi_offset 3, -8
+ 206              		.cfi_offset 14, -4
+ARM GAS  C:\Users\Patrick\AppData\Local\Temp\ccNZ99Y9.s 			page 6
+
+
+  81:Src/tim.c     **** 
+  82:Src/tim.c     ****   if(tim_baseHandle->Instance==TIM3)
+ 207              		.loc 1 82 0
+ 208 0002 0268     		ldr	r2, [r0]
+ 209 0004 064B     		ldr	r3, .L24
+ 210 0006 9A42     		cmp	r2, r3
+ 211 0008 00D0     		beq	.L23
+ 212              	.LVL11:
+ 213              	.L20:
+  83:Src/tim.c     ****   {
+  84:Src/tim.c     ****   /* USER CODE BEGIN TIM3_MspDeInit 0 */
+  85:Src/tim.c     **** 
+  86:Src/tim.c     ****   /* USER CODE END TIM3_MspDeInit 0 */
+  87:Src/tim.c     ****     /* Peripheral clock disable */
+  88:Src/tim.c     ****     __HAL_RCC_TIM3_CLK_DISABLE();
+  89:Src/tim.c     **** 
+  90:Src/tim.c     ****     /* TIM3 interrupt Deinit */
+  91:Src/tim.c     ****     HAL_NVIC_DisableIRQ(TIM3_IRQn);
+  92:Src/tim.c     ****   /* USER CODE BEGIN TIM3_MspDeInit 1 */
+  93:Src/tim.c     **** 
+  94:Src/tim.c     ****   /* USER CODE END TIM3_MspDeInit 1 */
+  95:Src/tim.c     ****   }
+  96:Src/tim.c     **** } 
+ 214              		.loc 1 96 0
+ 215 000a 08BD     		pop	{r3, pc}
+ 216              	.LVL12:
+ 217              	.L23:
+  88:Src/tim.c     **** 
+ 218              		.loc 1 88 0
+ 219 000c 054A     		ldr	r2, .L24+4
+ 220 000e D369     		ldr	r3, [r2, #28]
+ 221 0010 23F00203 		bic	r3, r3, #2
+ 222 0014 D361     		str	r3, [r2, #28]
+  91:Src/tim.c     ****   /* USER CODE BEGIN TIM3_MspDeInit 1 */
+ 223              		.loc 1 91 0
+ 224 0016 1D20     		movs	r0, #29
+ 225              	.LVL13:
+ 226 0018 FFF7FEFF 		bl	HAL_NVIC_DisableIRQ
+ 227              	.LVL14:
+ 228              		.loc 1 96 0
+ 229 001c F5E7     		b	.L20
+ 230              	.L25:
+ 231 001e 00BF     		.align	2
+ 232              	.L24:
+ 233 0020 00040040 		.word	1073742848
+ 234 0024 00100240 		.word	1073876992
+ 235              		.cfi_endproc
+ 236              	.LFE68:
+ 238              		.comm	htim3,64,4
+ 239              		.text
+ 240              	.Letext0:
+ 241              		.file 2 "c:\\program files (x86)\\embedded toolchain\\gnu tools arm embedded\\7 2017-q4-major\\arm
+ 242              		.file 3 "c:\\program files (x86)\\embedded toolchain\\gnu tools arm embedded\\7 2017-q4-major\\arm
+ 243              		.file 4 "Drivers/CMSIS/Include/core_cm3.h"
+ 244              		.file 5 "Drivers/CMSIS/Device/ST/STM32F1xx/Include/system_stm32f1xx.h"
+ 245              		.file 6 "Drivers/CMSIS/Device/ST/STM32F1xx/Include/stm32f103xb.h"
+ 246              		.file 7 "c:\\program files (x86)\\embedded toolchain\\gnu tools arm embedded\\7 2017-q4-major\\arm
+ARM GAS  C:\Users\Patrick\AppData\Local\Temp\ccNZ99Y9.s 			page 7
+
+
+ 247              		.file 8 "c:\\program files (x86)\\embedded toolchain\\gnu tools arm embedded\\7 2017-q4-major\\arm
+ 248              		.file 9 "c:\\program files (x86)\\embedded toolchain\\gnu tools arm embedded\\7 2017-q4-major\\lib
+ 249              		.file 10 "c:\\program files (x86)\\embedded toolchain\\gnu tools arm embedded\\7 2017-q4-major\\ar
+ 250              		.file 11 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_def.h"
+ 251              		.file 12 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_dma.h"
+ 252              		.file 13 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim.h"
+ 253              		.file 14 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim_ex.h"
+ 254              		.file 15 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h"
+ 255              		.file 16 "Inc/tim.h"
+ 256              		.file 17 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_cortex.h"
+ 257              		.file 18 "Inc/main.h"
+ARM GAS  C:\Users\Patrick\AppData\Local\Temp\ccNZ99Y9.s 			page 8
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 tim.c
+C:\Users\Patrick\AppData\Local\Temp\ccNZ99Y9.s:16     .text.MX_TIM3_Init:00000000 $t
+C:\Users\Patrick\AppData\Local\Temp\ccNZ99Y9.s:23     .text.MX_TIM3_Init:00000000 MX_TIM3_Init
+C:\Users\Patrick\AppData\Local\Temp\ccNZ99Y9.s:117    .text.MX_TIM3_Init:00000068 $d
+                            *COM*:00000040 htim3
+C:\Users\Patrick\AppData\Local\Temp\ccNZ99Y9.s:123    .text.HAL_TIM_Base_MspInit:00000000 $t
+C:\Users\Patrick\AppData\Local\Temp\ccNZ99Y9.s:130    .text.HAL_TIM_Base_MspInit:00000000 HAL_TIM_Base_MspInit
+C:\Users\Patrick\AppData\Local\Temp\ccNZ99Y9.s:183    .text.HAL_TIM_Base_MspInit:0000003c $d
+C:\Users\Patrick\AppData\Local\Temp\ccNZ99Y9.s:188    .text.HAL_TIM_Base_MspDeInit:00000000 $t
+C:\Users\Patrick\AppData\Local\Temp\ccNZ99Y9.s:195    .text.HAL_TIM_Base_MspDeInit:00000000 HAL_TIM_Base_MspDeInit
+C:\Users\Patrick\AppData\Local\Temp\ccNZ99Y9.s:233    .text.HAL_TIM_Base_MspDeInit:00000020 $d
+
+UNDEFINED SYMBOLS
+HAL_TIM_Base_Init
+HAL_TIM_ConfigClockSource
+HAL_TIMEx_MasterConfigSynchronization
+Error_Handler
+HAL_NVIC_SetPriority
+HAL_NVIC_EnableIRQ
+HAL_NVIC_DisableIRQ
